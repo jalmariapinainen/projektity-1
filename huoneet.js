@@ -1,3 +1,8 @@
+//////////////////////////////////////////////////////////////////////
+//Kaikki huoneet tuleva tulostettua elementtiin, jossa id on #huoneet
+//////////////////////////////////////////////////////////////////////
+//juuri nyt ilmoitan taulu li elementillä, mutta voi vaihtaa sen rivillä 19
+
 async function nayta() {
     const vastaus = await fetch("api.php?tarkoitus=huoneNakymat");
     const listapaikka = document.querySelector("#huoneet");

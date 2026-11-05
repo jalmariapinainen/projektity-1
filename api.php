@@ -1,6 +1,6 @@
 <?php
 include "yhteys.php";
-
+header("Content-Type: application/json; charset=utf-8");
 $metodi = $_SERVER["REQUEST_METHOD"];
 
 if($metodi === "POST"){
@@ -26,10 +26,10 @@ if($metodi === "POST"){
     }
 
     if ($conn->query($sql) === TRUE) {
-        json_encode("Lisätty", JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        echo json_encode("Lisätty", JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
     } else {
-            json_encode("Error: " . $sql . "<br>" . $conn->error, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        echo json_encode("Error: " . $sql . "<br>" . $conn->error, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 }
 
@@ -47,10 +47,10 @@ if($metodi === "PUT"){
     $sql = "UPDATE Huoneet SET tunnus='.$tunnus.', varauspaiva='.$varauspaiva.', varausaika='.$varausaika.', varausloppuaika='.$varausloppuaika.' WHERE huone_id='$id'";
 
     if ($conn->query($sql) === TRUE) {
-        json_encode("Varaus on päivitetty", JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-
+        echo json_encode("Varaus on päivitetty", JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        
     } else {
-        json_encode("Error varauksen päivittämisessä: " . $conn->error, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        echo json_encode("Error varauksen päivittämisessä: " . $conn->error, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 
     $conn->close();
@@ -68,6 +68,8 @@ if($metodi === "GET"){
     $kayttajatunnus = "";
     $salasana = "";
 
+
+    //toimii--
     if($tarkoitus == "huoneNakymat"){ //Näytetään kaikki huoneet, jotka voidaan varata
 
         $sql = "SELECT MIN(huone_id) AS huone_id, tunnus
@@ -76,14 +78,14 @@ if($metodi === "GET"){
         // Execute the SQL query
         $result = $conn->query($sql);
 
-        $huoneet = []; //tallentaa huoneiden lista Arrayhin, joka javascript lukee json muodossa
-        while ($rivi = $result->fetch_assoc()) {
-            $huoneet[] = $rivi;
-        }
+        $huoneet = $result->fetchAll(PDO::FETCH_ASSOC);
+        
 
-        header("Content-Type: application/json; charset=utf-8");
+        
         echo json_encode($huoneet, JSON_UNESCAPED_UNICODE);
+        
         exit;
+        
     }
 
     elseif($tarkoitus == "Huoneen ajat" && isset($id)){ //Kun ollaan tietyn huoneen sivulla, niin näytetään sen huoneen mahdolliset ajat
@@ -101,17 +103,31 @@ if($metodi === "GET"){
         // Execute the SQL query
         $result = $conn->query($sql);
         }
+
+        $huoneet = $result->fetchAll(PDO::FETCH_ASSOC);
+        
+
+        
+        echo json_encode($huoneet, JSON_UNESCAPED_UNICODE);
+        exit;
+        
     }
     
     elseif($tarkoitus == "kayttajaHaku"){
         $sql = "SELECT kayttaja_id, kayttajatunnus, salasana FROM Kayttajat WHERE kayttajatunnus='.$kayttajatunnus.' AND salasana = '.$salasana.'";
         // Execute the SQL query
         $result = $conn->query($sql);
+
+        $huoneet = $result->fetchAll(PDO::FETCH_ASSOC);
+        
+
+        
+        echo json_encode($huoneet, JSON_UNESCAPED_UNICODE);
+        exit;
+        
     }
 
-    echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-
-        $conn->close();
+    $conn->close();
 }
 
 
@@ -124,10 +140,10 @@ if($metodi === "DELETE"){
     $sql = "DELETE FROM Huoneet WHERE huone_id='$id'";
 
     if ($conn->query($sql) === TRUE) {
-        json_encode("Varaus on poistettu", JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        echo json_encode("Varaus on poistettu", JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
     } else {
-            json_encode("Error varauksen poistamisessa: " . $conn->error, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        echo json_encode("Error varauksen poistamisessa: " . $conn->error, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
     
 }
@@ -139,4 +155,4 @@ if($metodi === "DELETE"){
 ?>
 
 
-?>
+
