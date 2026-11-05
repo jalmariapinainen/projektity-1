@@ -31,3 +31,15 @@ CREATE TABLE Huoneet (
         FOREIGN KEY (kayttaja) 
         REFERENCES Kayttajat(kayttaja_id)
 );
+
+
+--Testi dataa --
+INSERT INTO Huoneet (tunnus, varattu, varauspaiva, varausaika, varausloppuaika, kayttaja) 
+VALUES 
+('Huone 101', 'kyllä', '2026-06-06', '12:00:00', '14:00:00', 1),
+('Huone 102', 'ei', '2026-06-07', '15:00:00', '16:30:00', 2);
+
+INSERT INTO Kayttajat (kayttajatunnus, salasana) 
+VALUES 
+('matti_meikalainen', 'salasana123'),
+('maija_teikalainen', 'turvallinen456');
