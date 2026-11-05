@@ -18,11 +18,11 @@ if($metodi === "POST"){
     if($tarkoitusPOST == "kayttajaLisays"){ //Kun rekisteröidään
 
         $sql = "INSERT INTO Kayttajat (kayttajatunnus, salasana)
-        VALUES ($kayttajatunnus", "$salasana)";
+        VALUES ($kayttajatunnus', '$salasana)";
         }
     elseif($tarkoitusPOST == "varausLisays" && !empty($kayttajaID)){ //Kun lisätään varaus
         $sql = "INSERT INTO Huoneet (tunnus, varauspaiva, varausaika, varausloppuaika, kayttaja)
-        VALUES ($tunnus", "$varauspaiva", "$varausaika", "$varausloppuaika", "$kayttajaID)";
+        VALUES ($tunnus', '$varauspaiva', '$varausaika', '$varausloppuaika', '$kayttajaID)";
     }
 
     if ($conn->query($sql) === TRUE) {
@@ -50,7 +50,7 @@ if($metodi === "PUT"){
         json_encode("Varaus on päivitetty", JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
     } else {
-        json_encode("Error varauksen päivittämisessä: " . $conn->error;, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        json_encode("Error varauksen päivittämisessä: " . $conn->error, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 
     $conn->close();
@@ -62,7 +62,7 @@ if($metodi === "PUT"){
 
 if($metodi === "GET"){
     $varattu = "" ?? "";
-    $tarkoitus = "";
+    $tarkoitus = $_GET["tarkoitus"] ?? "";
     $id = "";
 
     $kayttajatunnus = "";
@@ -70,9 +70,20 @@ if($metodi === "GET"){
 
     if($tarkoitus == "huoneNakymat"){ //Näytetään kaikki huoneet, jotka voidaan varata
 
-        $sql = "SELECT huone_id, tunnus FROM (SELECT DISTINCT tunnus FROM Huoneet) ";
+        $sql = "SELECT MIN(huone_id) AS huone_id, tunnus
+        FROM Huoneet
+        GROUP BY tunnus";
         // Execute the SQL query
         $result = $conn->query($sql);
+
+        $huoneet = []; //tallentaa huoneiden lista Arrayhin, joka javascript lukee json muodossa
+        while ($rivi = $result->fetch_assoc()) {
+            $huoneet[] = $rivi;
+        }
+
+        header("Content-Type: application/json; charset=utf-8");
+        echo json_encode($huoneet, JSON_UNESCAPED_UNICODE);
+        exit;
     }
 
     elseif($tarkoitus == "Huoneen ajat" && isset($id)){ //Kun ollaan tietyn huoneen sivulla, niin näytetään sen huoneen mahdolliset ajat
@@ -116,13 +127,16 @@ if($metodi === "DELETE"){
         json_encode("Varaus on poistettu", JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
     } else {
-            json_encode("Error varauksen poistamisessa: " . $conn->error;, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            json_encode("Error varauksen poistamisessa: " . $conn->error, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
     
 }
 
 
 
+
+
+?>
 
 
 ?>
