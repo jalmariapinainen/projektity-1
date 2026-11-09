@@ -15,7 +15,7 @@ USE Projekti1;
 CREATE TABLE Kayttajat (
     kayttaja_id INT AUTO_INCREMENT PRIMARY KEY,
     kayttajatunnus VARCHAR(50),
-    salasana VARCHAR(50)
+    salasana VARCHAR(255) NOT NULL,
 );
 
 -- 2. Luodaan sen jälkeen Huoneet-taulu, jossa on vierasavain viittauksella Kayttajiin[cite: 4]

@@ -50,6 +50,7 @@ button {
 
     <input id="email" type="email" placeholder="Sähköposti">
     <input id="password" type="password" placeholder="Salasana">
+    <input id="phonenumber" type="text" placeholder="Puhelinnumero">
 
     <button id="register">Rekisteröidy</button>
     <button id="login">Kirjaudu sisään</button>
@@ -57,17 +58,53 @@ button {
     <p id="message"></p>
 </div>
 
+
 <script>
-const message = document.getElementById('message');
+const message = document.getElementById("message");
 
-document.getElementById('register').onclick = () => {
-    message.textContent = 'Rekisteröityminen onnistui!';
-};
+// REKISTERÖITYMINEN
+document.getElementById("register").onclick = async () => {
 
-document.getElementById('login').onclick = () => {
-    message.textContent = 'Kirjautuminen onnistui!';
+    const kayttajatunnus =
+        document.getElementById("email").value;
+
+    const salasana =
+        document.getElementById("password").value;
+
+    try {
+        const vastaus = await fetch("api.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                tarkoitus: "kayttajaLisays",
+                kayttajatunnus: kayttajatunnus,
+                salasana: salasana
+            })
+        });
+
+        const data = await vastaus.json();
+
+        if (!vastaus.ok) {
+            message.style.color = "red";
+            message.textContent = data.virhe;
+            return;
+        }
+
+        message.style.color = "green";
+        message.textContent = data.viesti;
+
+        document.getElementById("password").value = "";
+
+    } catch (error) {
+        message.style.color = "red";
+        message.textContent = "Yhteys API:in epäonnistui!";
+        console.error(error);
+    }
 };
 </script>
+
 
 </body>
 </html>
