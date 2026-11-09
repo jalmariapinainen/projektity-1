@@ -15,13 +15,16 @@ session_start();
 
 </header>
 <nav id="nav" class="nav">
-    
+
         <a class="varaa" id="varaa" href="">Varaa huone</a>
-         <a class="kirjaudu" id="kirjaudu" href="kirjaudu.php">Kirjaudu sisään</a>
-         <a id="rekisteroidy" class="rekisteroidy" href="">Rekisteröidy</a>
+         <a class="kirjaudu" id="kirjaudu" href="kirjautuminen.html">Kirjaudu sisään</a>
+         <a id="rekisteroidy" class="rekisteroidy" href="kirjautuminen.html">Rekisteröidy</a>
     
 </nav>
+
+<h3>Tervetuloa huoneiden varausjärjestelmään. Tämä sivu näyttää huoneita ja niiden varaustilannetta. Jos olet uusi käyttäjä, käy rekisteröitymässä. Jos sinulla on jo käyttäjä, kirjaudu sisään.</h3>
 <?php
+// Tarkistaa jos käyttäjä on kirjautunut.
 if (isset($_GET['user'])) {
     $user = $_GET['user'];
     echo "<h3>Olet kirjautunut sisään, tervetuloa  $user!</h3>";
@@ -36,9 +39,7 @@ if (isset($_GET['user'])) {
 <h2>Huoneiden varaustilanne:</h2>
 <ul id="huoneet"></ul>
 <script src="huoneet.js"></script>
-<?php
 
-?>
 
 </table>
 
