@@ -15,8 +15,14 @@
     <body>
         <div id="huone_rakenne">
 
-            <div id="huone_kalenteri">
-<p>Kalenteri</p>
+            <div>
+                <div id="huone_logo">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5mt6J6WnLk-Byyoxjgp7_k37QTkj_dOaoX2cRZkobCWIjt5Iw80j3IE4&s=10" alt="Conferance room logo">
+                </div>
+                <div id="huone_kalenteri"><?php
+                    include "jalmarik.html";
+                ?></div>
+
             </div>
 
             <div id="huone_muu">

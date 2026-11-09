@@ -7,40 +7,46 @@
 }
 
 
+#huone_logo {
+    width: 100%;
+    height: 30%;
+    border-radius: 1vw;
+    padding: 2%;
+    background-color: rgb(255, 255, 255);
+}
 
+#huone_logo>img {
+    width: auto;
+    height: 100%;
+}
 
 #huone_kalenteri {
     background-color: whitesmoke;
 
     width: 100%;
-    height: 73vh;
+    height: 60%;
 
     border-radius: 1vw;
+    padding: 2%;
 
-
-    p {
-        margin-left: 2%;
-    }
 }
 
 #huone_kalenteri:hover {
-    box-shadow: inset 0 0 0 4px rgba(91, 95, 95, 0.247);
+    box-shadow: inset 0 0 0 0.15vw rgba(91, 95, 95, 0.247);
 }
 
 #huone_otsikko {
     background-color: beige;
     width: 90%;
-    height: 16%;
+    height: 12%;
 
     border-radius: 1vw;
 
-    p {
-        margin-left: 2%;
-    }
+    padding: 2%;
 }
 
 #huone_otsikko:hover {
-    box-shadow: inset 0 0 0 4px rgba(91, 95, 95, 0.247);
+    box-shadow: inset 0 0 0 0.15vw rgba(91, 95, 95, 0.247);
 
 }
 
@@ -51,12 +57,14 @@
 
     border-radius: 1vw;
 
-    p {
-        margin-left: 2%;
-    }
+    padding: 2%;
 }
 
 #huone_ajat:hover {
-    box-shadow: inset 0 0 0 4px rgba(91, 95, 95, 0.247);
+    box-shadow: inset 0 0 0 0.15vw rgba(91, 95, 95, 0.247);
 
+}
+
+#paiva_kalenteri {
+    place-items: center;
 }
