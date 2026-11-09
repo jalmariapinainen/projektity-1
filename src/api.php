@@ -62,7 +62,6 @@ if($metodi === "PUT"){
         echo json_encode("Error varauksen päivittämisessä: " . $conn->error, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 
-    $conn->close();
 }
 
 
@@ -82,7 +81,6 @@ if($metodi === "GET"){
         $huoneet = $result->fetchAll(PDO::FETCH_ASSOC);
         
         echo json_encode($huoneet, JSON_UNESCAPED_UNICODE);
-        
         exit;
     }
 
@@ -117,7 +115,7 @@ if($metodi === "GET"){
         
     }
 
-    $conn->close();
+    
 }
 
 
@@ -143,6 +141,5 @@ if($metodi === "DELETE"){
 
 
 ?>
-
 
 
