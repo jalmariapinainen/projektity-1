@@ -1,0 +1,63 @@
+.nav {
+    background-color: #d4d1d1;
+    padding: 20px;
+
+
+}
+.header {
+    font-size: 15px;
+    text-align: center;
+  
+   
+}
+.kirjaudu {
+    
+    float: right;
+    font-size: 20px;
+    font-style: bold;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    stroke-color:#000000;
+    top: 100px;
+    right: 40px;
+    position: absolute;
+    
+    
+}
+.rekisteroidy {
+    float: right;
+    position: absolute;
+    right: 70px;
+    top: 75px;
+    font-size: 20px;
+    font-style: bold;
+    
+    
+}
+.varaa {
+   text-align: left; 
+    font-size: 20px;
+    font-style: bold;
+    color: #000000;
+    
+    
+}
+body {
+    background-color: #f2f2f2;
+    
+}
+ a:link {
+            color: #000000;
+        }
+        
+        a:visited {
+            color: #000000;
+        }
+       
+        a:hover {
+            color: #2706e2;
+            text-decoration: underline;
+        }
+       
+        a:active {
+            color: #078686;
+        }
