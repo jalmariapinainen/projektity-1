@@ -2,27 +2,36 @@
 include "yhteys.php";
 header("Content-Type: application/json; charset=utf-8");
 $metodi = $_SERVER["REQUEST_METHOD"];
+$data = json_decode(file_get_contents("php://input"), true);
 
 if($metodi === "POST"){
-    $tunnus = "";
-    $varauspaiva = "";
-    $varausaika = "";
-    $varausloppuaika = "";
-    $kayttajaID = "";
     
-    $kayttajatunnus = "";
-    $salasana = "";
-
-    $tarkoitusPOST = "";
+    $tarkoitusPOST = $data["tarkoitus"] ?? "";
 
     if($tarkoitusPOST == "kayttajaLisays"){ //Kun rekisteröidään
+        $kayttajatunnus = $data["kayttajatunnus"] ?? "";
+        $salasana = $data["salasana"] ?? "";
+        $puhelinnro = $data["puhelinnumero"] ?? "";
 
-        $sql = "INSERT INTO Kayttajat (kayttajatunnus, salasana)
-        VALUES ($kayttajatunnus', '$salasana)";
+        $sql = "INSERT INTO Kayttajat (kayttajatunnus, salasana, puh)
+        VALUES ($kayttajatunnus', '$salasana', '$puhelinnro)";
         }
     elseif($tarkoitusPOST == "varausLisays" && !empty($kayttajaID)){ //Kun lisätään varaus
-        $sql = "INSERT INTO Huoneet (tunnus, varauspaiva, varausaika, varausloppuaika, kayttaja)
-        VALUES ($tunnus', '$varauspaiva', '$varausaika', '$varausloppuaika', '$kayttajaID)";
+        $huone = $data["huone"] ?? "";
+        $varauspaiva = $data["varauspaiva"] ?? "";
+        $varausaika = $data["varausaika"] ?? "";
+        $varausloppuaika = $data["varausloppuaika"] ?? "";
+        $kayttajaID = $data["kayttajaID"] ?? "";
+
+        $sql = "INSERT INTO Varaukset (huone_id, varauspaiva, varausaika, varausloppuaika, kayttaja)
+        VALUES ($huone', '$varauspaiva', '$varausaika', '$varausloppuaika', '$kayttajaID)";
+    }
+    elseif($tarkoitusPOST == "huoneLisäys"){
+        $tunnus = $data["tunnus"] ?? "";
+        $sijainti = $data["sijainti"] ?? "";
+
+        $sql = "INSERT INTO Huoneet (tunnus, sijainti)
+        VALUES ($tunnus', '$sijainti)";
     }
 
     if ($conn->query($sql) === TRUE) {
@@ -38,13 +47,13 @@ if($metodi === "POST"){
 
 
 if($metodi === "PUT"){
-    $id ="";
-    $tunnus = "";
-    $varauspaiva = "";
-    $varausaika = "";
-    $varausloppuaika = "";
+    $id = $data["kayttaja"] ?? "";
+    $huone_id = $data["huone"] ?? "";
+    $varauspaiva = $data["varausPaiva"] ?? "";
+    $varausaika = $data["varausAika"] ?? "";
+    $varausloppuaika = $data["varausLoppu"] ?? "";
 
-    $sql = "UPDATE Huoneet SET tunnus='.$tunnus.', varauspaiva='.$varauspaiva.', varausaika='.$varausaika.', varausloppuaika='.$varausloppuaika.' WHERE huone_id='$id'";
+    $sql = "UPDATE Varaukset SET huone_id='.$huone_id.', varauspaiva='.$varauspaiva.', varausaika='.$varausaika.', varausloppuaika='.$varausloppuaika.' WHERE huone_id='$id'";
 
     if ($conn->query($sql) === TRUE) {
         echo json_encode("Varaus on päivitetty", JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
@@ -53,7 +62,6 @@ if($metodi === "PUT"){
         echo json_encode("Error varauksen päivittämisessä: " . $conn->error, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 
-    $conn->close();
 }
 
 
@@ -61,73 +69,53 @@ if($metodi === "PUT"){
 
 
 if($metodi === "GET"){
-    $varattu = "" ?? "";
     $tarkoitus = $_GET["tarkoitus"] ?? "";
-    $id = "";
-
-    $kayttajatunnus = "";
-    $salasana = "";
-
-
+    
     //toimii--
     if($tarkoitus == "huoneNakymat"){ //Näytetään kaikki huoneet, jotka voidaan varata
 
-        $sql = "SELECT MIN(huone_id) AS huone_id, tunnus
-        FROM Huoneet
-        GROUP BY tunnus";
+        $sql = "SELECT huone_id, tunnus, sijainti FROM Huoneet";
         // Execute the SQL query
         $result = $conn->query($sql);
 
         $huoneet = $result->fetchAll(PDO::FETCH_ASSOC);
-        
-
         
         echo json_encode($huoneet, JSON_UNESCAPED_UNICODE);
-        
         exit;
-        
     }
 
-    elseif($tarkoitus == "Huoneen ajat" && isset($id)){ //Kun ollaan tietyn huoneen sivulla, niin näytetään sen huoneen mahdolliset ajat
-        if($varattu === "false"){ //Jos suodatuksissa halutaan nähdä vain varaamattomat ajat
+    elseif($tarkoitus == "Huoneen ajat"){ //Kun ollaan tietyn huoneen sivulla, niin näytetään sen huoneen mahdolliset ajat
 
-            $sql = "SELECT huone_id, tunnus, varattu FROM Huoneet WHERE huone_id = '.$id.' AND varattu = false";
+        $huone_id = $_GET["huone_id"] ?? "";
+
+        $sql = "SELECT Varaukset.varaus_id, Varaukset.varauspaiva, Varaukset.varausaika, Varaukset.varausloppuaika, Kayttajat.kayttajatunnus FROM Varaukset WHERE huone_id = '.$huone_id.'
+        LEFT JOIN Kayttajat ON Varaukset.kayttaja = Kayttajat.kayttaja_id";
         // Execute the SQL query
         $result = $conn->query($sql);
-        }
         
-        else{//Jos suodatusta ei ole lisätty
-        $sql = "SELECT Huoneet.huone_id, Huoneet.tunnus, Huoneet.varattu, Huoneet.varauspaiva, Huoneet.varausaika, Huoneet.varausloppuaika, Kayttajat.kayttajatunnus FROM Huoneet WHERE huone_id = '.$id.'
-        LEFT JOIN Kayttajat ON kayttaja = kayttaja_id
-        ";
-        // Execute the SQL query
-        $result = $conn->query($sql);
-        }
-
         $huoneet = $result->fetchAll(PDO::FETCH_ASSOC);
-        
-
-        
         echo json_encode($huoneet, JSON_UNESCAPED_UNICODE);
         exit;
         
     }
     
     elseif($tarkoitus == "kayttajaHaku"){
+
+        $kayttajatunnus = $_GET["kayttajatunnus"] ?? "";
+        $salasana = $_GET["salasana"] ?? "";
+
         $sql = "SELECT kayttaja_id, kayttajatunnus, salasana FROM Kayttajat WHERE kayttajatunnus='.$kayttajatunnus.' AND salasana = '.$salasana.'";
         // Execute the SQL query
         $result = $conn->query($sql);
 
-        $huoneet = $result->fetchAll(PDO::FETCH_ASSOC);
+        $kayttaja = $result->fetchAll(PDO::FETCH_ASSOC);
         
-
-        
-        echo json_encode($huoneet, JSON_UNESCAPED_UNICODE);
+        echo json_encode($kayttaja, JSON_UNESCAPED_UNICODE);
         exit;
         
     }
 
-    $conn->close();
+    
 }
 
 
@@ -135,9 +123,9 @@ if($metodi === "GET"){
 
 
 if($metodi === "DELETE"){
-    $id ="";
+    $id = $data["varaus_id"] ?? "";
 
-    $sql = "DELETE FROM Huoneet WHERE huone_id='$id'";
+    $sql = "DELETE FROM Varaukset WHERE varaus_id='$id'";
 
     if ($conn->query($sql) === TRUE) {
         echo json_encode("Varaus on poistettu", JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
@@ -153,6 +141,5 @@ if($metodi === "DELETE"){
 
 
 ?>
-
 
 

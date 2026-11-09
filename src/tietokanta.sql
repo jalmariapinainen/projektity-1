@@ -7,41 +7,57 @@
 
 
 
--- Luodaan tietokanta (voit halutessasi vaihtaa nimen)
-CREATE DATABASE IF NOT EXISTS Projekti1;
-USE Projekti1;
+CREATE DATABASE IF NOT EXISTS Projekti1New;
+USE Projekti1New;
 
--- 1. Luodaan ensin Kayttajat-taulu, koska Huoneet viittaa siihen[cite: 4]
+-- 1. Luodaan Kayttajat-taulu
 CREATE TABLE Kayttajat (
     kayttaja_id INT AUTO_INCREMENT PRIMARY KEY,
     kayttajatunnus VARCHAR(50),
-    salasana VARCHAR(255) NOT NULL,
+    salasana VARCHAR(50),
+    puh VARCHAR(20)
 );
 
--- 2. Luodaan sen jälkeen Huoneet-taulu, jossa on vierasavain viittauksella Kayttajiin[cite: 4]
+-- 2. Luodaan Huoneet-taulu (kuvan mukainen rakenne)
 CREATE TABLE Huoneet (
     huone_id INT AUTO_INCREMENT PRIMARY KEY,
     tunnus VARCHAR(25),
-    varattu VARCHAR(10),
+    sijainti VARCHAR(50)
+);
+
+-- 3. Luodaan Varaukset-taulu, joka viittaa sekä huoneisiin että käyttäjiin
+CREATE TABLE Varaukset (
+    varaus_id INT AUTO_INCREMENT PRIMARY KEY,
+    huone_id INT,
     varauspaiva DATE,
     varausaika TIME,
     varausloppuaika TIME,
     kayttaja INT,
-    CONSTRAINT fk_huoneet_kayttaja 
+    CONSTRAINT fk_varaukset_huone 
+        FOREIGN KEY (huone_id) 
+        REFERENCES Huoneet(huone_id),
+    CONSTRAINT fk_varaukset_kayttaja 
         FOREIGN KEY (kayttaja) 
         REFERENCES Kayttajat(kayttaja_id)
 );
 
 
 --Testi dataa (Ensin Kayttajat, muuten virhe tulee lisäämisessä) --
-INSERT INTO Kayttajat (kayttajatunnus, salasana) 
+
+INSERT INTO Kayttajat (kayttajatunnus, salasana, puh) 
 VALUES 
-('matti_meikalainen', 'salasana123'),
-('maija_teikalainen', 'turvallinen456');
+('matti_meikalainen', 'salasana123', '040 123 4567'),
+('maija_teikalainen', 'turvallinen456', '045 876 5432');
 
 
-INSERT INTO Huoneet (tunnus, varattu, varauspaiva, varausaika, varausloppuaika, kayttaja) 
+INSERT INTO Huoneet (tunnus, sijainti) 
 VALUES 
-('Huone 101', 'kyllä', '2026-06-06', '12:00:00', '14:00:00', 1),
-('Huone 102', 'ei', '2026-06-07', '15:00:00', '16:30:00', 2);
+('Huone 101', '1. kerros, Voima'),
+('Huone 102', '2. kerros, Voima');
+
+
+INSERT INTO Varaukset (huone_id, varauspaiva, varausaika, varausloppuaika, kayttaja) 
+VALUES 
+(1, '2026-06-06', '12:00:00', '14:00:00', 1),
+(2, '2026-06-07', '15:00:00', '16:30:00', 2);
 
