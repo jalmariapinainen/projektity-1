@@ -16,7 +16,8 @@ session_start();
 </header>
 <nav id="nav" class="nav">
 
-        <a class="varaa" id="varaa" href="">Varaa huone</a>
+        
+        <a class="huone" id="huone" href="huoneenlisays.php">Lisää huone</a>
         <?php //Tarkistaa jos käyttäjä on kirjautunut ?>
         <?php if (isset($_GET['user'])): ?>
             <span class="kayttaja">Käyttäjä: <?php echo htmlspecialchars($_GET['user'], ENT_QUOTES, 'UTF-8'); ?></span>
