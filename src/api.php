@@ -231,11 +231,7 @@ if ($metodi === "POST") {
         vastaus("Varaus lisätty!");
     }
 
-    else {
-        vastaus("Tuntematon toiminto.", 400);
-    }
-}
-
+    elseif($tarkoitus == "Huoneen_ajat"){ //Kun ollaan tietyn huoneen sivulla, niin näytetään sen huoneen mahdolliset ajat
 
 // ============================
 // GET
@@ -259,6 +255,13 @@ elseif ($metodi === "GET") {
             JSON_UNESCAPED_UNICODE
         );
 
+        $sql = "SELECT Varaukset.varaus_id, Varaukset.varauspaiva, Varaukset.varausaika, Varaukset.varausloppuaika, Kayttajat.kayttajatunnus FROM Varaukset 
+        LEFT JOIN Kayttajat ON Varaukset.kayttaja = Kayttajat.kayttaja_id WHERE Varaukset.huone_id = :huone_id";
+        // Execute the SQL query
+        $stmt = $conn->prepare($sql);
+$stmt->execute(["huone_id" => $huone_id]);
+
+echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC), JSON_UNESCAPED_UNICODE);
         exit;
     }
 
