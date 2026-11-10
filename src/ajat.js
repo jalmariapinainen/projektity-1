@@ -105,7 +105,7 @@ async function nayta() {
 
     for (let i = 12; i < 41; i++) {
 
-        const aikakortti = document.createElement("div");
+        const aikakortti = document.createElement("button");
         const aikateksti = document.createElement("p");
 
 

@@ -137,11 +137,14 @@ button {
 .aikakortti {
     background-color: white;
     width: 97%;
-    height: 3em;
+    height: 4em;
     border-bottom: 0.5em solid rgb(179, 179, 179);
+    border-left: none;
+    border-top: none;
+    border-right: none;
     display: flex;
     align-items: center;
-    border-radius: 0.2em;
+    border-radius: 0.4em;
     margin-left: auto;
     margin-right: auto;
 }
