@@ -84,17 +84,17 @@ if($metodi === "GET"){
         exit;
     }
 
-    elseif($tarkoitus == "Huoneen ajat"){ //Kun ollaan tietyn huoneen sivulla, niin näytetään sen huoneen mahdolliset ajat
+    elseif($tarkoitus == "Huoneen_ajat"){ //Kun ollaan tietyn huoneen sivulla, niin näytetään sen huoneen mahdolliset ajat
 
         $huone_id = $_GET["huone_id"] ?? "";
 
-        $sql = "SELECT Varaukset.varaus_id, Varaukset.varauspaiva, Varaukset.varausaika, Varaukset.varausloppuaika, Kayttajat.kayttajatunnus FROM Varaukset WHERE huone_id = '.$huone_id.'
-        LEFT JOIN Kayttajat ON Varaukset.kayttaja = Kayttajat.kayttaja_id";
+        $sql = "SELECT Varaukset.varaus_id, Varaukset.varauspaiva, Varaukset.varausaika, Varaukset.varausloppuaika, Kayttajat.kayttajatunnus FROM Varaukset 
+        LEFT JOIN Kayttajat ON Varaukset.kayttaja = Kayttajat.kayttaja_id WHERE Varaukset.huone_id = :huone_id";
         // Execute the SQL query
-        $result = $conn->query($sql);
-        
-        $huoneet = $result->fetchAll(PDO::FETCH_ASSOC);
-        echo json_encode($huoneet, JSON_UNESCAPED_UNICODE);
+        $stmt = $conn->prepare($sql);
+$stmt->execute(["huone_id" => $huone_id]);
+
+echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC), JSON_UNESCAPED_UNICODE);
         exit;
         
     }
