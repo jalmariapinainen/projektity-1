@@ -16,11 +16,14 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: testdb
+      MYSQL_DATABASE: Projekti1New
       MYSQL_USER: user
       MYSQL_PASSWORD: pass
     ports:
       - "3307:3306"
+    volumes:
+      - ./src/tietokanta.sql:/docker-entrypoint-initdb.d/01-tietokanta.sql:ro
+      - dbdata:/var/lib/mysql
     healthcheck:
       test: [ "CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot --silent" ]
       interval: 5s
@@ -31,7 +34,7 @@ services:
     image: phpmyadmin/phpmyadmin
     restart: always
     ports:
-      - "8081:80"
+      - "8082:80"
     environment:
       PMA_HOST: db
       PMA_USER: root
