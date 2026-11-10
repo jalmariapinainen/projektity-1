@@ -6,6 +6,7 @@
 <title>Kirjautuminen</title>
 
 <style>
+    // Basic styles for the login form
 body {
     background: #eee;
     font-family: Arial;
@@ -45,28 +46,85 @@ button {
 
 <body>
 
-<div class="login">
+    // Login form with email, password, and phone number fields
+<form class="login" id="authForm">
     <h2>Kirjaudu</h2>
 
-    <input id="email" type="email" placeholder="Sähköposti">
-    <input id="password" type="password" placeholder="Salasana">
+    // Input fields for email, password, and phone number
+    <input id="email" type="email" placeholder="Sähköposti" required>
+    <input id="password" type="password" placeholder="Salasana" minlength="8" required>
+    <input id="phone" type="tel" placeholder="Puhelinnumero" maxlength="20">
 
-    <button id="register">Rekisteröidy</button>
-    <button id="login">Kirjaudu sisään</button>
-
-    <p id="message"></p>
-</div>
+    // Buttons for registration and login
+    <button id="register" type="button">Rekisteröidy</button>
+    <button id="login" type="button">Kirjaudu sisään</button>
+    <p id="message" aria-live="polite"></p>
+</form>
 
 <script>
-const message = document.getElementById('message');
+    // Funktio lähettää kirjautumis- tai rekisteröitymispyynnön
+async function lahetaPyynto(tarkoitus) {
+    const form = document.getElementById("authForm");
+    if (!form.reportValidity()) {
+        return;
+    }
 
-document.getElementById('register').onclick = () => {
-    message.textContent = 'Rekisteröityminen onnistui!';
-};
+    // Näytetään viesti käyttäjälle
+    const viesti = document.getElementById("message");
+    const tiedot = {
+        tarkoitus,
+        kayttajatunnus: document.getElementById("email").value.trim(),
+        salasana: document.getElementById("password").value
+    };
 
-document.getElementById('login').onclick = () => {
-    message.textContent = 'Kirjautuminen onnistui!';
-};
+    // Lisätään puhelinnumero vain rekisteröitymisen yhteydessä
+    if (tarkoitus === "kayttajaLisays") {
+        tiedot.puhelinnumero = document.getElementById("phone").value.trim();
+    }
+
+    viesti.textContent = "Käsitellään...";
+
+    // Lähetetään pyyntö palvelimelle
+    try {
+        const response = await fetch("api.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "same-origin",
+            body: JSON.stringify(tiedot)
+        });
+        // Tarkistetaan, että vastaus on JSON-muodossa
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+            throw new Error(
+                "API ei palauta JSON-vastausta. Avaa sivu Dockerista osoitteesta http://localhost:8080/kirjautuminen.html."
+            );
+        }
+        // Parsitaan JSON-vastaus
+        const data = await response.json();
+
+        // Tarkistetaan, onko pyyntö onnistunut
+        if (!response.ok) {
+            throw new Error(data.message || "Pyyntö epäonnistui.");
+        }
+
+        // Näytetään onnistumisviesti
+        viesti.textContent = data.message || "Pyyntö onnistui.";
+    } catch (error) {
+        viesti.textContent = error instanceof Error
+            ? error.message
+            : "Palvelimeen ei saatu yhteyttä.";
+    }
+}
+
+// Lisätään tapahtumankuuntelijat painikkeille
+document.getElementById("register").addEventListener("click", () => {
+    lahetaPyynto("kayttajaLisays");
+});
+document.getElementById("login").addEventListener("click", () => {
+    lahetaPyynto("kirjautuminen");
+});
 </script>
 
 </body>

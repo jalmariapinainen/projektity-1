@@ -1,7 +1,5 @@
 
-----------------------
 -- PHPMyADMIN koodi --
-----------------------
 
 
 
@@ -13,8 +11,8 @@ USE Projekti1New;
 -- 1. Luodaan Kayttajat-taulu
 CREATE TABLE Kayttajat (
     kayttaja_id INT AUTO_INCREMENT PRIMARY KEY,
-    kayttajatunnus VARCHAR(50),
-    salasana VARCHAR(50),
+    kayttajatunnus VARCHAR(254) NOT NULL UNIQUE,
+    salasana VARCHAR(255) NOT NULL,
     puh VARCHAR(20)
 );
 
@@ -42,7 +40,7 @@ CREATE TABLE Varaukset (
 );
 
 
---Testi dataa (Ensin Kayttajat, muuten virhe tulee lisäämisessä) --
+-- Testi dataa (Ensin Kayttajat, muuten virhe tulee lisäämisessä)
 
 INSERT INTO Kayttajat (kayttajatunnus, salasana, puh) 
 VALUES 
@@ -60,4 +58,3 @@ INSERT INTO Varaukset (huone_id, varauspaiva, varausaika, varausloppuaika, kaytt
 VALUES 
 (1, '2026-06-06', '12:00:00', '14:00:00', 1),
 (2, '2026-06-07', '15:00:00', '16:30:00', 2);
-
