@@ -11,14 +11,19 @@ session_start();
 </head>
 <body>
 <header id="otsikko" class="header">
-    <h1>Huoneen varaus</h1>
+    <h1>Huoneen varaus järjestelmä</h1>
 
 </header>
 <nav id="nav" class="nav">
 
         <a class="varaa" id="varaa" href="">Varaa huone</a>
-         <a class="kirjaudu" id="kirjaudu" href="kirjautuminen.html">Kirjaudu sisään</a>
-         <a id="rekisteroidy" class="rekisteroidy" href="kirjautuminen.html">Rekisteröidy</a>
+        <?php if (isset($_GET['user'])): ?>
+            <span class="kayttaja">Käyttäjä: <?php echo htmlspecialchars($_GET['user'], ENT_QUOTES, 'UTF-8'); ?></span>
+            <a class="ulos" id="ulos" href="logout.php">Kirjaudu ulos</a>
+        <?php else: ?>
+            <a class="kirjaudu" id="kirjaudu" href="kirjautuminen.html">Kirjaudu sisään</a>
+            <a id="rekisteroidy" class="rekisteroidy" href="kirjautuminen.html">Rekisteröidy</a>
+        <?php endif; ?>
     
 </nav>
 
