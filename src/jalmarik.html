@@ -1,79 +1,100 @@
-
 <!DOCTYPE html>
 <html lang="fi">
+
 <head>
-<meta charset="UTF-8">
-<title>Kalenteri</title>
-<style>
-body { font-family: Arial; text-align: center; }
-.paivat { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-button { padding: 10px; cursor: pointer; }
-.valittu { background: #2563eb; color: white; }
-</style>
+  <meta charset="UTF-8">
+  <title>Kalenteri</title>
+  <style>
+    #paiva_kalenteri {
+      font-family: Arial;
+      text-align: center;
+    }
+
+    .paivat {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    button {
+      padding: 10px;
+      cursor: pointer;
+
+    }
+
+    h2>button {}
+
+    .valittu {
+      background: #2563eb;
+      color: white;
+    }
+  </style>
 </head>
+
 <body>
+  <div id="paiva_kalenteri">
+    <h2>
+      <button onclick="vaihda(-1)">←</button>
+      <span id="kuukausi"></span>
+      <button onclick="vaihda(1)">→</button>
+    </h2>
 
-<h2>
-<button onclick="vaihda(-1)">←</button>
-<span id="kuukausi"></span>
-<button onclick="vaihda(1)">→</button>
-</h2>
+    <div class="paivat" id="kalenteri"></div>
+    <p>Valittu päivä: <span id="valittu">Ei valittu</span></p>
+  </div>
+  <script>
+    let aika = new Date();
+    let valinta = null;
 
-<div class="paivat" id="kalenteri"></div>
-<p>Valittu päivä: <span id="valittu">Ei valittu</span></p>
+    function nayta() {
+      let v = aika.getFullYear();
+      let k = aika.getMonth();
 
-<script>
-let aika = new Date();
-let valinta = null;
+      document.getElementById("kuukausi").textContent =
+        aika.toLocaleDateString("fi-FI", {
+          month: "long", year: "numeric"
+        });
 
-function nayta() {
-  let v = aika.getFullYear();
-  let k = aika.getMonth();
+      let kalenteri = document.getElementById("kalenteri");
+      kalenteri.innerHTML = "";
 
-  document.getElementById("kuukausi").textContent =
-    aika.toLocaleDateString("fi-FI", {
-      month: "long", year: "numeric"
-    });
+      ["Ma", "Ti", "Ke", "To", "Pe", "La", "Su"].forEach(p => {
+        kalenteri.innerHTML += `<div>${p}</div>`;
+      });
 
-  let kalenteri = document.getElementById("kalenteri");
-  kalenteri.innerHTML = "";
+      let alku = (new Date(v, k, 1).getDay() + 6) % 7;
+      let maara = new Date(v, k + 1, 0).getDate();
 
-  ["Ma","Ti","Ke","To","Pe","La","Su"].forEach(p => {
-    kalenteri.innerHTML += `<div>${p}</div>`;
-  });
+      for (let i = 0; i < alku; i++)
+        kalenteri.innerHTML += "<div></div>";
 
-  let alku = (new Date(v, k, 1).getDay() + 6) % 7;
-  let maara = new Date(v, k + 1, 0).getDate();
+      for (let p = 1; p <= maara; p++) {
+        let b = document.createElement("button");
+        b.textContent = p;
 
-  for (let i = 0; i < alku; i++)
-    kalenteri.innerHTML += "<div></div>";
+        if (valinta && valinta.getFullYear() === v &&
+          valinta.getMonth() === k && valinta.getDate() === p)
+          b.className = "valittu";
 
-  for (let p = 1; p <= maara; p++) {
-    let b = document.createElement("button");
-    b.textContent = p;
+        b.onclick = () => {
+          valinta = new Date(v, k, p);
+          document.getElementById("valittu").textContent =
+            valinta.toLocaleDateString("fi-FI");
+          nayta();
+        };
 
-    if (valinta && valinta.getFullYear() === v &&
-        valinta.getMonth() === k && valinta.getDate() === p)
-      b.className = "valittu";
+        kalenteri.appendChild(b);
+      }
+    }
 
-    b.onclick = () => {
-      valinta = new Date(v, k, p);
-      document.getElementById("valittu").textContent =
-        valinta.toLocaleDateString("fi-FI");
+    function vaihda(suunta) {
+      aika.setMonth(aika.getMonth() + suunta);
       nayta();
-    };
+    }
 
-    kalenteri.appendChild(b);
-  }
-}
-
-function vaihda(suunta) {
-  aika.setMonth(aika.getMonth() + suunta);
-  nayta();
-}
-
-nayta();
-</script>
+    nayta();
+  </script>
 
 </body>
+
 </html>
