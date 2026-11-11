@@ -1,0 +1,204 @@
+#huone_rakenne {
+    width: 60%;
+    display: grid;
+    grid-template-columns: 1.2fr 1.5fr 1.5fr;
+    margin: auto;
+    column-gap: 20px;
+}
+
+body {}
+
+
+#huone_kalenteri {
+    background-color: whitesmoke;
+
+    width: 100%;
+    height: 35vh;
+
+    border-radius: 1vw;
+    padding: 2%;
+
+}
+
+#huone_kalenteri:hover {
+    box-shadow: inset 0 0 0 0.15vw rgba(91, 95, 95, 0.247);
+}
+
+#huone_otsikko {
+    background-color: beige;
+    width: 60%;
+    height: 6em;
+    margin: auto;
+    border-radius: 1em;
+    display: flex;
+    align-items: center;
+
+}
+
+#huone_otsikko h1 {
+    margin-block: 0;
+    margin-left: 1em;
+}
+
+#huone_otsikko:hover {
+    box-shadow: inset 0 0 0 0.15vw rgba(91, 95, 95, 0.247);
+
+}
+
+#huone_muu {
+    background-color: rgba(180, 180, 180, 0.726);
+    width: auto;
+    height: 48em;
+
+    border-radius: 1vw;
+
+    padding: 2%;
+}
+
+#huone_ajat {
+    height: 100%;
+    width: 100%;
+
+    overflow: auto;
+
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    grid-row: 325px;
+
+}
+
+#huone_muu:hover {
+    box-shadow: inset 0 0 0 0.15vw rgba(91, 95, 95, 0.247);
+
+}
+
+#paiva_kalenteri {
+    place-items: center;
+}
+
+#valittu_paiva {
+
+    background-color: whitesmoke;
+
+    width: 100%;
+    height: 7vh;
+
+    border-radius: 1vw;
+    padding: 2%;
+
+    display: flex;
+    align-items: center;
+}
+
+
+#valittu_paiva:hover {
+    box-shadow: inset 0 0 0 0.15vw rgba(91, 95, 95, 0.247);
+}
+
+#huone_ajat::-webkit-scrollbar {
+    background: rgb(63, 63, 63);
+    border-radius: 10px;
+}
+
+#huone_ajat::-webkit-scrollbar-thumb {
+    background: #a1a1a1;
+    border-radius: 10px;
+}
+
+#huone_ajat::-webkit-scrollbar-thumb:hover {
+    background: #b1b0b0;
+}
+
+#huone_ajat::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px rgb(255, 255, 255);
+    border-radius: 10px;
+}
+
+#paiva_kalenteri {
+    font-family: Arial;
+    text-align: center;
+}
+
+.paivat {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.kalenterinappi {
+    padding: 10px;
+    cursor: pointer;
+
+}
+
+.valittu {
+    background: #2563eb;
+    color: white;
+}
+
+.aikakortti {
+    background-color: white;
+    width: 97%;
+    height: 4em;
+    border-bottom: 0.5em solid rgb(179, 179, 179);
+    display: flex;
+    align-items: center;
+
+    border-top-left-radius: 0.5em;
+    border-bottom-left-radius: 0.5em;
+    margin-left: auto;
+    margin-right: auto;
+
+    border-top: 0.001em solid rgb(48, 48, 48);
+
+    grid-column: 1;
+}
+
+.aikakortti p {
+    margin: auto;
+}
+
+.varattu {
+    background-color: #f3a5a5;
+    width: 97%;
+    height: auto;
+}
+
+
+
+.varattu,
+.empty-cell {
+    grid-column: 2;
+
+    border-top-right-radius: 0.4em;
+    border-bottom-right-radius: 0.4em;
+    border-top: 0.001em solid rgb(63, 63, 63);
+}
+
+.varattu:hover,
+.empty-cell:hover,
+.aikakortti:hover {
+    transform: scale(1.04);
+}
+
+.empty-cell {
+    background-color: beige;
+    border-bottom: 0.5em solid rgb(165, 165, 164);
+    width: 97%;
+
+}
+
+.true-tyhjä {
+    grid-column: 2;
+    pointer-events: none;
+    display: none;
+}
+
+.ajanvalinta-vali-naytto {
+    background-color: rgba(255, 124, 119, 0.63);
+}
+
+#Huonesijainti {
+    margin-left: auto;
+    margin-right: 5%;
+}

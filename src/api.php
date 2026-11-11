@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 session_set_cookie_params([
     "lifetime" => 0,
     "path" => "/",
@@ -7,6 +8,8 @@ session_set_cookie_params([
     "httponly" => true,
     "samesite" => "Lax"
 ]);
+=======
+>>>>>>> origin/main
 session_start();
 
 header("Content-Type: application/json; charset=utf-8");
@@ -45,13 +48,17 @@ if ($metodi === "POST") {
     if ($tarkoitus === "kayttajaLisays") {
 
         $tunnus = trim($data["kayttajatunnus"] ?? "");
+<<<<<<< HEAD
         $sahkoposti = trim($data["sahkoposti"] ?? "");
+=======
+>>>>>>> origin/main
         $salasana = $data["salasana"] ?? "";
         $puhelin = trim($data["puhelinnumero"] ?? $data["puh"] ?? "");
 
         if ($tunnus === "" || strlen($tunnus) > 254 || strlen($salasana) < 8) {
             vastaus("Käyttäjätunnuksen enimmäispituus on 254 merkkiä ja salasanan vähimmäispituus 8 merkkiä.", 400);
         }
+<<<<<<< HEAD
         
         //tarkistetaan onko käyttäjää jo tietokannassa
         $tarkistus = $conn->prepare(
@@ -63,16 +70,36 @@ if ($metodi === "POST") {
             vastaus("Käyttäjätunnus on jo käytössä.", 409);
             
         } //poistuu takaisin sivulle, jos käyttäjä on jo olemassa
+=======
+
+        $tarkistus = $conn->prepare(
+            "SELECT kayttaja_id FROM Kayttajat WHERE kayttajatunnus = ?"
+        );
+        $tarkistus->execute([$tunnus]);
+
+        if ($tarkistus->fetch()) {
+            vastaus("Käyttäjätunnus on jo käytössä.", 409);
+        }
+>>>>>>> origin/main
 
         $hash = password_hash($salasana, PASSWORD_DEFAULT);
 
         $sql = $conn->prepare(
+<<<<<<< HEAD
             "INSERT INTO Kayttajat (kayttajatunnus, sahkoposti, salasana, puh)
              VALUES (?, ?, ?, ?)"
         );
 
         try {
             $sql->execute([$tunnus, $sahkoposti, $hash, $puhelin]);
+=======
+            "INSERT INTO Kayttajat (kayttajatunnus, salasana, puh)
+             VALUES (?, ?, ?)"
+        );
+
+        try {
+            $sql->execute([$tunnus, $hash, $puhelin]);
+>>>>>>> origin/main
         } catch (PDOException $e) {
             error_log("Käyttäjän rekisteröinti epäonnistui: " . $e->getMessage());
             vastaus("Rekisteröityminen epäonnistui. Tarkista tiedot ja yritä uudelleen.", 500);
@@ -82,7 +109,56 @@ if ($metodi === "POST") {
     }
 
 
+<<<<<<< HEAD
     
+=======
+    // KIRJAUTUMINEN
+
+    elseif ($tarkoitus === "kirjautuminen") {
+
+        $tunnus = trim($data["kayttajatunnus"] ?? "");
+        $salasana = $data["salasana"] ?? "";
+
+        $sql = $conn->prepare(
+            "SELECT kayttaja_id, kayttajatunnus, salasana
+             FROM Kayttajat
+             WHERE kayttajatunnus = ?"
+        );
+
+        $sql->execute([$tunnus]);
+        $kayttaja = $sql->fetch(PDO::FETCH_ASSOC);
+
+        if (!$kayttaja) {
+            vastaus("Virheellinen käyttäjätunnus tai salasana.", 401);
+        }
+
+        $oikein = password_verify($salasana, $kayttaja["salasana"]);
+
+        // Vanhojen testitunnusten käsittely
+        if (!$oikein && hash_equals($kayttaja["salasana"], $salasana)) {
+
+            $hash = password_hash($salasana, PASSWORD_DEFAULT);
+
+            $paivitys = $conn->prepare(
+                "UPDATE Kayttajat SET salasana = ? WHERE kayttaja_id = ?"
+            );
+
+            $paivitys->execute([$hash, $kayttaja["kayttaja_id"]]);
+
+            $oikein = true;
+        }
+
+        if (!$oikein) {
+            vastaus("Virheellinen käyttäjätunnus tai salasana.", 401);
+        }
+
+        session_regenerate_id(true);
+
+        $_SESSION["kayttaja_id"] = $kayttaja["kayttaja_id"];
+
+        vastaus("Kirjautuminen onnistui!");
+    }
+>>>>>>> origin/main
 
 
     // SALASANAN VAIHTO
@@ -194,6 +270,12 @@ if ($metodi === "POST") {
         ]);
 
         vastaus("Varaus lisätty!");
+<<<<<<< HEAD
+=======
+    }
+
+    elseif($tarkoitus == "Huoneen_ajat"){ //Kun ollaan tietyn huoneen sivulla, niin näytetään sen huoneen mahdolliset ajat
+>>>>>>> origin/main
     }
 
     elseif($tarkoitus == "Huoneen_ajat"){ //Kun ollaan tietyn huoneen sivulla, niin näytetään sen huoneen mahdolliset ajat
@@ -254,6 +336,7 @@ elseif ($metodi === "GET") {
 
     $tarkoitus = $_GET["tarkoitus"] ?? "";
 
+<<<<<<< HEAD
     //KIRJAUTUNEEN KÄYTTÄJÄTUNNUKSEN HAKU
     if ($tarkoitus === "omaKayttaja") {
         if (empty($_SESSION["kayttaja_id"])) {
@@ -266,6 +349,9 @@ elseif ($metodi === "GET") {
     }
 
 
+=======
+
+>>>>>>> origin/main
     // KAIKKI HUONEET
 
     if ($tarkoitus === "huoneNakymat") {
@@ -299,6 +385,7 @@ elseif ($metodi === "GET") {
         );
 
         exit;
+<<<<<<< HEAD
     }
 
     // HUONEEN VARAUSAJAT
@@ -355,9 +442,61 @@ elseif ($metodi === "GET") {
     
     else {
         vastaus("Tuntematon GET-toiminto.", 400);
+=======
+>>>>>>> origin/main
     }
 
-    
+    // HUONEEN VARAUSAJAT
+
+    elseif ($tarkoitus === "Huoneen_ajat") {
+
+        $huone = $_GET["huone_id"] ?? "";
+
+        $sql = $conn->prepare(
+            "SELECT Varaukset.varaus_id,
+                    Varaukset.varauspaiva,
+                    Varaukset.varausaika,
+                    Varaukset.varausloppuaika,
+                    Kayttajat.kayttajatunnus
+             FROM Varaukset
+             LEFT JOIN Kayttajat
+             ON Varaukset.kayttaja = Kayttajat.kayttaja_id
+             WHERE Varaukset.huone_id = ?"
+        );
+
+        $sql->execute([$huone]);
+
+        echo json_encode(
+            $sql->fetchAll(PDO::FETCH_ASSOC),
+            JSON_UNESCAPED_UNICODE
+        );
+
+        exit;
+    }
+
+    //TIETYN HUONEEN TIEDOT
+
+    elseif ($tarkoitus === "Huoneen_tiedot") {
+        $huone = $_GET["huone_id"] ?? "";
+
+        $sql = $conn->prepare(
+            "SELECT tunnus, sijainti FROM Huoneet WHERE huone_id = ?"
+        );
+
+        $sql->execute([$huone]);
+        $tiedot = $sql->fetch(PDO::FETCH_ASSOC);
+
+        if (!$tiedot) {
+            vastaus("Huonetta ei löytynyt.", 404);
+        }
+
+        echo json_encode($tiedot, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    else {
+        vastaus("Tuntematon GET-toiminto.", 400);
+    }
 }
 
 
@@ -423,4 +562,8 @@ else {
     vastaus("Metodia ei tueta.", 405);
 }
 
+<<<<<<< HEAD
 ?>
+=======
+?>
+>>>>>>> origin/main

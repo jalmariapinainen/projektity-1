@@ -39,6 +39,7 @@ nayta().catch(error => {
         `Huoneiden haku epäonnistui: ${error.message}`;
 });
 
+<<<<<<< HEAD
 async function kirjautumisnaytto(){
     const kayttajatunnuspaikka = document.getElementById("kirjautumistarkistus");
 
@@ -65,6 +66,8 @@ async function kirjautumisnaytto(){
 
 kirjautumisnaytto();
 
+=======
+>>>>>>> origin/main
 async function huonehaku() {
     const hakukentta = document.getElementById("huone-haku-kenttä");
     const hakuhuoneet = document.getElementById("haku-huoneet");
@@ -107,4 +110,8 @@ async function huonehaku() {
         hakuhuoneet.textContent =
             `Huoneiden haku epäonnistui: ${error.message}`;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main

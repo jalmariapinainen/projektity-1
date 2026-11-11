@@ -102,3 +102,10 @@ body {
     text-decoration: none;
     
 }
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    font-size: 20px;
+}
