@@ -58,6 +58,13 @@ body {}
 #huone_ajat {
     height: 100%;
     width: 100%;
+
+    overflow: auto;
+
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    grid-row: 325px;
+
 }
 
 #huone_muu:hover {
@@ -86,11 +93,6 @@ body {}
 
 #valittu_paiva:hover {
     box-shadow: inset 0 0 0 0.15vw rgba(91, 95, 95, 0.247);
-}
-
-
-#huone_ajat {
-    overflow: auto;
 }
 
 #huone_ajat::-webkit-scrollbar {
@@ -123,7 +125,7 @@ body {}
     gap: 5px;
 }
 
-button {
+.kalenterinappi {
     padding: 10px;
     cursor: pointer;
 
@@ -137,23 +139,66 @@ button {
 .aikakortti {
     background-color: white;
     width: 97%;
-    height: 3em;
+    height: 4em;
     border-bottom: 0.5em solid rgb(179, 179, 179);
     display: flex;
     align-items: center;
-    border-radius: 0.2em;
+
+    border-top-left-radius: 0.5em;
+    border-bottom-left-radius: 0.5em;
     margin-left: auto;
     margin-right: auto;
+
+    border-top: 0.001em solid rgb(48, 48, 48);
+
+    grid-column: 1;
 }
 
 .aikakortti p {
-    margin-left: 2em;
+    margin: auto;
 }
 
-.aikakortti.varattu {
+.varattu {
     background-color: #f3a5a5;
+    width: 97%;
+    height: auto;
 }
 
+
+
+.varattu,
+.empty-cell {
+    grid-column: 2;
+
+    border-top-right-radius: 0.4em;
+    border-bottom-right-radius: 0.4em;
+    border-top: 0.001em solid rgb(63, 63, 63);
+}
+
+.varattu:hover,
+.empty-cell:hover,
 .aikakortti:hover {
-    transform: scale(1.02);
+    transform: scale(1.04);
+}
+
+.empty-cell {
+    background-color: beige;
+    border-bottom: 0.5em solid rgb(165, 165, 164);
+    width: 97%;
+
+}
+
+.true-tyhjä {
+    grid-column: 2;
+    pointer-events: none;
+    display: none;
+}
+
+.ajanvalinta-vali-naytto {
+    background-color: rgba(255, 124, 119, 0.63);
+}
+
+#Huonesijainti {
+    margin-left: auto;
+    margin-right: 5%;
 }

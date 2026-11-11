@@ -232,7 +232,8 @@ if ($metodi === "POST") {
     }
 
     elseif($tarkoitus == "Huoneen_ajat"){ //Kun ollaan tietyn huoneen sivulla, niin näytetään sen huoneen mahdolliset ajat
-
+    }
+}
 // ============================
 // GET
 // ============================
@@ -255,20 +256,13 @@ elseif ($metodi === "GET") {
             JSON_UNESCAPED_UNICODE
         );
 
-        $sql = "SELECT Varaukset.varaus_id, Varaukset.varauspaiva, Varaukset.varausaika, Varaukset.varausloppuaika, Kayttajat.kayttajatunnus FROM Varaukset 
-        LEFT JOIN Kayttajat ON Varaukset.kayttaja = Kayttajat.kayttaja_id WHERE Varaukset.huone_id = :huone_id";
-        // Execute the SQL query
-        $stmt = $conn->prepare($sql);
-$stmt->execute(["huone_id" => $huone_id]);
-
-echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC), JSON_UNESCAPED_UNICODE);
-        exit;
+        
     }
 
 
     // HUONEEN VARAUSAJAT
 
-    elseif ($tarkoitus === "Huoneen ajat") {
+    elseif ($tarkoitus === "Huoneen_ajat") {
 
         $huone = $_GET["huone_id"] ?? "";
 
@@ -291,6 +285,26 @@ echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC), JSON_UNESCAPED_UNICODE);
             JSON_UNESCAPED_UNICODE
         );
 
+        exit;
+    }
+
+    //TIETYN HUONEEN TIEDOT
+
+    elseif ($tarkoitus === "Huoneen_tiedot") {
+        $huone = $_GET["huone_id"] ?? "";
+
+        $sql = $conn->prepare(
+            "SELECT tunnus, sijainti FROM Huoneet WHERE huone_id = ?"
+        );
+
+        $sql->execute([$huone]);
+        $tiedot = $sql->fetch(PDO::FETCH_ASSOC);
+
+        if (!$tiedot) {
+            vastaus("Huonetta ei löytynyt.", 404);
+        }
+
+        echo json_encode($tiedot, JSON_UNESCAPED_UNICODE);
         exit;
     }
 
