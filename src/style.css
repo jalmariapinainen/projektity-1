@@ -6,7 +6,7 @@
     column-gap: 20px;
 }
 
-body {}
+
 
 
 #huone_kalenteri {
@@ -201,4 +201,112 @@ body {}
 #Huonesijainti {
     margin-left: auto;
     margin-right: 5%;
+}
+
+#aijanvaraus_aika_inputs {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    gap: 6px;
+}
+
+#aijanvaraus_aika_inputs > p {
+    margin: 0 0 4px;
+}
+
+#aijanvaraus_aika_inputs > div {
+    min-width: 0;
+}
+
+#lopetusAika, #aloitusAika{
+    box-sizing: border-box;
+    width: 4rem;
+}
+
+#aloitus_aika_input, #lopetus_aika_input {
+    width: auto;
+}
+
+#aloitusTeksti, #lopetusTeksti {
+    display: block;
+}
+
+#lopetusTeksti {
+    text-align: right;
+}
+
+#valittu_paivateksti_form{
+    background-color: white;
+    padding: 1em;
+    border-radius: 1em;
+    margin: auto;
+    width: 70%;
+    font-size: 1.4em;
+}
+
+#lisays_sisalto {
+    position: relative;
+    align-self: stretch;
+}
+
+#lisäys_lomake{
+    background-color: rgb(196, 196, 196);
+    width: 90%;
+    height: calc(100% - 2em);
+    padding: 1em;
+    border-radius: 1em;
+}
+
+#kirjautuminen_peite:not([hidden]) {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    margin: auto;
+    padding: 1rem;
+    border-radius: 1em;
+    text-align: center;
+    font-size: 1.2rem;
+    background: rgba(255, 255, 255, 0.9);
+    height: 20%;
+    width: 80%;
+    border: 0.2em solid rgb(0, 51, 102);
+}
+
+#huone-lisays-message-div{
+    
+    margin: auto;
+    width: 100%;
+    padding: 1em;
+    font-size: 1em;
+    border-radius: 1em;
+    text-align: center;
+}
+
+.nav {
+    background-color: rgb(0, 51, 102);
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+
+}
+
+#nav>ul{
+    display: grid;
+    list-style: none;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+#nav>ul>li{
+    margin: auto;
+}
+
+#nav>ul>li>a{
+    color: white;
+    text-decoration: none;
+
+}
+#nav>ul>li>a:hover,
+#nav>ul>li>a:focus-visible {
+  text-decoration: underline;
 }

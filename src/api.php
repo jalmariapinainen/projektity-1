@@ -179,19 +179,67 @@ if ($metodi === "POST") {
         $alku = $data["varausaika"] ?? "";
         $loppu = $data["varausloppuaika"] ?? "";
 
-        $sql = $conn->prepare(
-            "INSERT INTO Varaukset
-            (huone_id, varauspaiva, varausaika, varausloppuaika, kayttaja)
-            VALUES (?, ?, ?, ?, ?)"
-        );
+        $kelvollinenAika = '/^(?:0[6-9]|1[0-9]):(00|30):00$|^20:00:00$/';
+        if (
+            $huone === "" ||
+            $paiva === "" ||
+            !preg_match($kelvollinenAika, $alku) ||
+            !preg_match($kelvollinenAika, $loppu) ||
+            $alku >= $loppu
+        ) {
+            vastaus("Tarkista varauksen huone, päivä ja kellonajat.", 400);
+        }
 
-        $sql->execute([
-            $huone,
-            $paiva,
-            $alku,
-            $loppu,
-            $_SESSION["kayttaja_id"]
-        ]);
+        try {
+            $conn->beginTransaction();
+
+            $lukitseHuone = $conn->prepare(
+                "SELECT huone_id FROM Huoneet WHERE huone_id = ? FOR UPDATE"
+            );
+            $lukitseHuone->execute([$huone]);
+
+            if ($lukitseHuone->fetchColumn() === false) {
+                $conn->rollBack();
+                vastaus("Huonetta ei löytynyt.", 404);
+            }
+
+            $tarkistus = $conn->prepare(
+                "SELECT 1
+                 FROM Varaukset
+                 WHERE huone_id = ?
+                   AND varauspaiva = ?
+                   AND varausaika < ?
+                   AND varausloppuaika > ?
+                 LIMIT 1"
+            );
+            $tarkistus->execute([$huone, $paiva, $loppu, $alku]);
+
+            if ($tarkistus->fetchColumn() !== false) {
+                $conn->rollBack();
+                vastaus("Valittu aika on jo varattu.", 409);
+            }
+
+            $sql = $conn->prepare(
+                "INSERT INTO Varaukset
+                (huone_id, varauspaiva, varausaika, varausloppuaika, kayttaja)
+                VALUES (?, ?, ?, ?, ?)"
+            );
+            $sql->execute([
+                $huone,
+                $paiva,
+                $alku,
+                $loppu,
+                $_SESSION["kayttaja_id"]
+            ]);
+
+            $conn->commit();
+        } catch (PDOException $e) {
+            if ($conn->inTransaction()) {
+                $conn->rollBack();
+            }
+            error_log("Varauksen lisääminen epäonnistui: " . $e->getMessage());
+            vastaus("Varauksen lisääminen epäonnistui tietokantavirheen vuoksi.", 500);
+        }
 
         vastaus("Varaus lisätty!");
     }
