@@ -14,13 +14,8 @@ session_start();
     <h1>Huoneen varaus</h1>
 
 </header>
-<nav id="nav" class="nav">
-    
-        <a class="varaa" id="varaa" href="">Varaa huone</a>
-         <a class="kirjaudu" id="kirjaudu" href="kirjaudu.php">Kirjaudu sisään</a>
-         <a id="rekisteroidy" class="rekisteroidy" href="">Rekisteröidy</a>
-    
-</nav>
+<?php include "header.php";
+?>
 <?php
 if (isset($_GET['user'])) {
     $user = $_GET['user'];
