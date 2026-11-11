@@ -29,6 +29,7 @@ async function nayta() {
         listapaikka.appendChild(kohta);
 
     }
+
 }
 
 
@@ -38,6 +39,35 @@ nayta().catch(error => {
         `Huoneiden haku epäonnistui: ${error.message}`;
 });
 
+<<<<<<< HEAD
+async function kirjautumisnaytto(){
+    const kayttajatunnuspaikka = document.getElementById("kirjautumistarkistus");
+
+    try {
+        const vastaus = await fetch("api.php?tarkoitus=omaKayttaja");
+
+        if (vastaus.status === 401) {
+            kayttajatunnuspaikka.textContent = "Et ole kirjautunut sisään.";
+            return;
+        }
+        if (!vastaus.ok) {
+            throw new Error(`API-virhe: ${vastaus.status}`);
+        }
+
+        const kayttaja = await vastaus.json();
+        kayttajatunnuspaikka.textContent =
+            `Kirjautunut käyttäjä: ${kayttaja.kayttajatunnus}`;
+    } catch (error) {
+        console.error(error);
+        kayttajatunnuspaikka.textContent =
+            "Kirjautumistietojen haku epäonnistui.";
+    }
+}
+
+kirjautumisnaytto();
+
+=======
+>>>>>>> origin/main
 async function huonehaku() {
     const hakukentta = document.getElementById("huone-haku-kenttä");
     const hakuhuoneet = document.getElementById("haku-huoneet");
@@ -80,4 +110,8 @@ async function huonehaku() {
         hakuhuoneet.textContent =
             `Huoneiden haku epäonnistui: ${error.message}`;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main

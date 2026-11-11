@@ -1,3 +1,48 @@
+<<<<<<< HEAD
+
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<title>Kirjautuminen</title>
+
+<style>
+body {
+    background: #eee;
+    font-family: Arial;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 250px;
+    text-align: center;
+}
+
+input, button {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    box-sizing: border-box;
+}
+
+button {
+    background: blue;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#message {
+    color: green;
+}
+</style>
+=======
 <!DOCTYPE html>
 <html lang="fi">
 
@@ -43,10 +88,80 @@
             color: green;
         }
     </style>
+>>>>>>> origin/main
 </head>
 
 <body>
 
+<<<<<<< HEAD
+<div class="login">
+    <h2>Kirjaudu</h2>
+
+    <input id="user" type="text" placeholder="Käyttäjätunnus">
+
+    <input id="password" type="password" placeholder="Salasana">
+
+    
+
+    <button id="login">Kirjaudu sisään</button>
+    
+
+    <p id="message"></p>
+    
+</div>
+
+<script>
+const message = document.getElementById("message");
+
+// REKISTERÖITYMINEN
+document.getElementById("login").onclick = async () => {
+
+    const kayttajatunnus =
+        document.getElementById("user").value;
+
+    const salasana =
+        document.getElementById("password").value;
+
+
+    try {
+        const vastaus = await fetch("api.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                tarkoitus: "kirjautuminen",
+                kayttajatunnus: kayttajatunnus,
+                salasana: salasana
+                
+            })
+        });
+
+        const data = await vastaus.json();
+
+        if (!vastaus.ok) {
+            message.style.color = "red";
+            message.textContent = data.message || "Kirjautuminen epäonnistui.";
+            return;
+        }
+
+        message.style.color = "green";
+        message.textContent = data.message || "Kirjautuminen onnistui!";
+
+        document.getElementById("password").value = "";
+
+    } catch (error) {
+        message.style.color = "red";
+        message.textContent = "Yhteys API:in epäonnistui. Avaa sivu palvelimen kautta (esim. http://localhost:8080/kirjautuminen.html).";
+        console.error(error);
+    }
+};
+</script>
+
+
+</body>
+</html>
+=======
     // Login form with email, password, and phone number fields
     <form class="login" id="authForm">
         <h2>Kirjaudu</h2>
@@ -131,3 +246,4 @@
 </body>
 
 </html>
+>>>>>>> origin/main
