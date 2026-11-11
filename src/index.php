@@ -17,7 +17,7 @@ session_start();
 <nav id="nav" class="nav">
     
         <a class="varaa" id="varaa" href="">Varaa huone</a>
-         <a class="kirjaudu" id="kirjaudu" href="kirjaudu.php">Kirjaudu sisään</a>
+         <a class="kirjaudu" id="kirjaudu" href="kirjautuminen.html">Kirjaudu sisään</a>
          <a id="rekisteroidy" class="rekisteroidy" href="">Rekisteröidy</a>
     
 </nav>
