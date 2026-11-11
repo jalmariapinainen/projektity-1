@@ -14,7 +14,8 @@ USE Projekti1New;
 CREATE TABLE Kayttajat (
     kayttaja_id INT AUTO_INCREMENT PRIMARY KEY,
     kayttajatunnus VARCHAR(50),
-    salasana VARCHAR(50),
+    sahkoposti VARCHAR(50),
+    salasana VARCHAR(255),
     puh VARCHAR(20)
 );
 
@@ -60,4 +61,3 @@ INSERT INTO Varaukset (huone_id, varauspaiva, varausaika, varausloppuaika, kaytt
 VALUES 
 (1, '2026-06-06', '12:00:00', '14:00:00', 1),
 (2, '2026-06-07', '15:00:00', '16:30:00', 2);
-

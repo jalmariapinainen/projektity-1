@@ -48,28 +48,31 @@ button {
 <div class="login">
     <h2>Kirjaudu</h2>
 
-    <input id="email" type="email" placeholder="Sähköposti">
-    <input id="password" type="password" placeholder="Salasana">
-    <input id="phonenumber" type="text" placeholder="Puhelinnumero">
+    <input id="user" type="text" placeholder="Käyttäjätunnus">
 
-    <button id="register">Rekisteröidy</button>
+    <input id="password" type="password" placeholder="Salasana">
+
+    
+
     <button id="login">Kirjaudu sisään</button>
+    
 
     <p id="message"></p>
+    
 </div>
-
 
 <script>
 const message = document.getElementById("message");
 
 // REKISTERÖITYMINEN
-document.getElementById("register").onclick = async () => {
+document.getElementById("login").onclick = async () => {
 
     const kayttajatunnus =
-        document.getElementById("email").value;
+        document.getElementById("user").value;
 
     const salasana =
         document.getElementById("password").value;
+
 
     try {
         const vastaus = await fetch("api.php", {
@@ -78,9 +81,10 @@ document.getElementById("register").onclick = async () => {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                tarkoitus: "kayttajaLisays",
+                tarkoitus: "kirjautuminen",
                 kayttajatunnus: kayttajatunnus,
                 salasana: salasana
+                
             })
         });
 
@@ -88,18 +92,18 @@ document.getElementById("register").onclick = async () => {
 
         if (!vastaus.ok) {
             message.style.color = "red";
-            message.textContent = data.virhe;
+            message.textContent = data.message || "Kirjautuminen epäonnistui.";
             return;
         }
 
         message.style.color = "green";
-        message.textContent = data.viesti;
+        message.textContent = data.message || "Kirjautuminen onnistui!";
 
         document.getElementById("password").value = "";
 
     } catch (error) {
         message.style.color = "red";
-        message.textContent = "Yhteys API:in epäonnistui!";
+        message.textContent = "Yhteys API:in epäonnistui. Avaa sivu palvelimen kautta (esim. http://localhost:8080/kirjautuminen.html).";
         console.error(error);
     }
 };
