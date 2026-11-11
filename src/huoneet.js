@@ -19,10 +19,27 @@ async function nayta() {
         const kohta = document.createElement("li");
         const linkki = document.createElement("a");
         const kortti = document.createElement("div");
+        const huonetunnus = document.createElement("div");
+        const huonetieto = document.createElement("div");
+        const huonetietosijainti = document.createElement("p");
+        const huonetietopintaAla = document.createElement("span");
+        const huonetietovali = document.createElement("hr");
 
         linkki.href = `huone.php?id=${encodeURIComponent(huone.huone_id)}`;
+        linkki.classList.add("huoneKorttiLinkki");
         kortti.classList.add("huoneKortti");
-        kortti.textContent = huone.tunnus;
+        huonetunnus.classList.add("huoneen_tunnus");
+        huonetieto.classList.add("huoneen_tieto");
+
+        huonetunnus.textContent = huone.tunnus;
+        huonetietosijainti.textContent = huone.sijainti;
+        huonetietopintaAla.textContent = `${huone.pintaAla} m²`;
+
+        huonetieto.appendChild(huonetietosijainti);
+        huonetieto.appendChild(huonetietopintaAla);
+        kortti.appendChild(huonetunnus);
+        kortti.appendChild(huonetietovali);
+        kortti.appendChild(huonetieto);
 
         linkki.appendChild(kortti);
         kohta.appendChild(linkki);
@@ -39,7 +56,6 @@ nayta().catch(error => {
         `Huoneiden haku epäonnistui: ${error.message}`;
 });
 
-<<<<<<< HEAD
 async function kirjautumisnaytto(){
     const kayttajatunnuspaikka = document.getElementById("kirjautumistarkistus");
 
@@ -66,8 +82,6 @@ async function kirjautumisnaytto(){
 
 kirjautumisnaytto();
 
-=======
->>>>>>> origin/main
 async function huonehaku() {
     const hakukentta = document.getElementById("huone-haku-kenttä");
     const hakuhuoneet = document.getElementById("haku-huoneet");
@@ -92,26 +106,39 @@ async function huonehaku() {
         }
 
         for (const huone of huoneet) {
-            const kohta = document.createElement("li");
-            const linkki = document.createElement("a");
-            const kortti = document.createElement("div");
+        const kohta = document.createElement("li");
+        const linkki = document.createElement("a");
+        const kortti = document.createElement("div");
+        const huonetunnus = document.createElement("div");
+        const huonetieto = document.createElement("div");
+        const huonetietosijainti = document.createElement("p");
+        const huonetietopintaAla = document.createElement("span");
+        const huonetietovali = document.createElement("hr");
 
-            linkki.href = `huone.php?id=${encodeURIComponent(huone.huone_id)}`;
-            kortti.classList.add("huoneKortti");
-            kortti.textContent = huone.tunnus;
+        linkki.href = `huone.php?id=${encodeURIComponent(huone.huone_id)}`;
+        linkki.classList.add("huoneKorttiLinkki");
+        kortti.classList.add("huoneKortti");
+        huonetunnus.classList.add("huoneen_tunnus");
+        huonetieto.classList.add("huoneen_tieto");
 
-            linkki.appendChild(kortti);
-            kohta.appendChild(linkki);
-            hakuhuoneet.appendChild(kohta);
+        huonetunnus.textContent = huone.tunnus;
+        huonetietosijainti.textContent = huone.sijainti;
+        huonetietopintaAla.textContent = `${huone.pintaAla} m²`;
 
-        }
+        huonetieto.appendChild(huonetietosijainti);
+        huonetieto.appendChild(huonetietopintaAla);
+        kortti.appendChild(huonetunnus);
+        kortti.appendChild(huonetietovali);
+        kortti.appendChild(huonetieto);
+
+        linkki.appendChild(kortti);
+        kohta.appendChild(linkki);
+        hakuhuoneet.appendChild(kohta);
+
+    }
     } catch (error) {
         console.error(error);
         hakuhuoneet.textContent =
             `Huoneiden haku epäonnistui: ${error.message}`;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> origin/main

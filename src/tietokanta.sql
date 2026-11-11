@@ -23,7 +23,8 @@ CREATE TABLE Kayttajat (
 CREATE TABLE Huoneet (
     huone_id INT AUTO_INCREMENT PRIMARY KEY,
     tunnus VARCHAR(25),
-    sijainti VARCHAR(50)
+    sijainti VARCHAR(50),
+    pintaAla INT(3)
 );
 
 -- 3. Luodaan Varaukset-taulu, joka viittaa sekä huoneisiin että käyttäjiin
@@ -47,14 +48,14 @@ CREATE TABLE Varaukset (
 
 INSERT INTO Kayttajat (kayttajatunnus, salasana, puh) 
 VALUES 
-('matti_meikalainen', 'salasana123', '040 123 4567'),
-('maija_teikalainen', 'turvallinen456', '045 876 5432');
+('matti_meikalainen', 'matti.meikalainen@example.com', 'salasana123', '040 123 4567'),
+('maija_teikalainen', 'maija.teikalainen@example.com', 'turvallinen456', '045 876 5432');
 
 
-INSERT INTO Huoneet (tunnus, sijainti) 
+INSERT INTO Huoneet (tunnus, sijainti, pintaAla) 
 VALUES 
-('Huone 101', '1. kerros, Voima'),
-('Huone 102', '2. kerros, Voima');
+('Huone 101', '1. kerros, Voima', '32'),
+('Huone 102', '2. kerros, Voima', '24');
 
 
 INSERT INTO Varaukset (huone_id, varauspaiva, varausaika, varausloppuaika, kayttaja) 

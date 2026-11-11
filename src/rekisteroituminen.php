@@ -3,58 +3,26 @@
 <html lang="fi">
 <head>
 <meta charset="UTF-8">
-<title>Kirjautuminen</title>
+<title>Rekisteröityminen</title>
+<link rel="stylesheet" href="tyyli1.css">
 
-<style>
-body {
-    background: #eee;
-    font-family: Arial;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-.login {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    width: 250px;
-    text-align: center;
-}
-
-input, button {
-    width: 100%;
-    padding: 12px;
-    margin: 8px 0;
-    box-sizing: border-box;
-}
-
-button {
-    background: blue;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-#message {
-    color: green;
-}
-</style>
 </head>
 
 <body>
+<?php 
+include "header.php";
+?>
 
 <div class="login">
-    <h2>Kirjaudu</h2>
+    <h2>Rekisteröidy</h2>
 
-    <input id="user" type="text" placeholder="Käyttäjätunnus">
-    <input id="email" type="email" placeholder="Sähköposti">
-    <input id="password" type="password" placeholder="Salasana">
-    <input id="phonenumber" type="text" placeholder="Puhelinnumero">
+    <input id="user" type="text" placeholder="Käyttäjätunnus" class="rek_input">
+    <input id="email" type="email" placeholder="Sähköposti" class="rek_input">
+    <input id="password" type="password" placeholder="Salasana" class="rek_input">
+    <input id="phonenumber" type="text" placeholder="Puhelinnumero" class="rek_input">
 
-    <button id="register">Rekisteröidy</button>
-    <button id="login">Kirjaudu sisään</button>
+    <button id="register"  class="rek_button">Rekisteröidy</button>
+    
 
     <p id="message"></p>
 </div>

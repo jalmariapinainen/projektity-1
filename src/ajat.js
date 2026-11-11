@@ -291,8 +291,8 @@ function ajanvalinta(tyhja, kellokortti, gridRow, aika) {
 
         valittu = valittu - 1;
         tyhja.dataset.selected = "false";
-        tyhja.style.backgroundColor = "beige";
-        kellokortti.style.backgroundColor = "white";
+        tyhja.style.backgroundColor = "";
+        kellokortti.style.backgroundColor = "";
         document.querySelectorAll(".ajanvalinta-vali-naytto").forEach(element => {
             element.classList.remove("ajanvalinta-vali-naytto");
         });

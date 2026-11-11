@@ -1,83 +1,3 @@
-<<<<<<< HEAD
-
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-<meta charset="UTF-8">
-<title>Kalenteri</title>
-<style>
-body { font-family: Arial; text-align: center; }
-.paivat { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-button { padding: 10px; cursor: pointer; }
-.valittu { background: #2563eb; color: white; }
-</style>
-</head>
-<body>
-
-<h2>
-<button onclick="vaihda(-1)">←</button>
-<span id="kuukausi"></span>
-<button onclick="vaihda(1)">→</button>
-</h2>
-
-<div class="paivat" id="kalenteri"></div>
-<p>Valittu päivä: <span id="valittu">Ei valittu</span></p>
-
-<script>
-let aika = new Date();
-let valinta = null;
-
-function nayta() {
-  let v = aika.getFullYear();
-  let k = aika.getMonth();
-
-  document.getElementById("kuukausi").textContent =
-    aika.toLocaleDateString("fi-FI", {
-      month: "long", year: "numeric"
-    });
-
-  let kalenteri = document.getElementById("kalenteri");
-  kalenteri.innerHTML = "";
-
-  ["Ma","Ti","Ke","To","Pe","La","Su"].forEach(p => {
-    kalenteri.innerHTML += `<div>${p}</div>`;
-  });
-
-  let alku = (new Date(v, k, 1).getDay() + 6) % 7;
-  let maara = new Date(v, k + 1, 0).getDate();
-
-  for (let i = 0; i < alku; i++)
-    kalenteri.innerHTML += "<div></div>";
-
-  for (let p = 1; p <= maara; p++) {
-    let b = document.createElement("button");
-    b.textContent = p;
-
-    if (valinta && valinta.getFullYear() === v &&
-        valinta.getMonth() === k && valinta.getDate() === p)
-      b.className = "valittu";
-
-    b.onclick = () => {
-      valinta = new Date(v, k, p);
-      document.getElementById("valittu").textContent =
-        valinta.toLocaleDateString("fi-FI");
-      nayta();
-    };
-
-    kalenteri.appendChild(b);
-  }
-}
-
-function vaihda(suunta) {
-  aika.setMonth(aika.getMonth() + suunta);
-  nayta();
-}
-
-nayta();
-</script>
-
-</body>
-=======
 <!DOCTYPE html>
 <html lang="fi">
 
@@ -177,5 +97,4 @@ nayta();
 
 </body>
 
->>>>>>> origin/main
 </html>
