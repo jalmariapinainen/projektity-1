@@ -30,6 +30,9 @@ session_start();
 </nav>
 
 <h3>Tervetuloa huoneiden varausjärjestelmään. Tämä sivu näyttää huoneita ja niiden varaustilannetta. Jos olet uusi käyttäjä, käy rekisteröitymässä. Jos sinulla on jo käyttäjä, kirjaudu sisään.</h3>
+<div id="Huoneiden-haku">
+    <input type="search" id="huone-haku-kenttä" placeholder="Hae tunnuksella tai sijainnilla"> <button onclick="huonehaku()">Hae</button>
+</div>
 <?php
 // Tarkistaa jos käyttäjä on kirjautunut.
 if (isset($_GET['user'])) {
@@ -42,11 +45,15 @@ if (isset($_GET['user'])) {
 
 ?>
 
-<table>
+
 <h2>Huoneiden varaustilanne:</h2>
+<ul id="haku-huoneet"></ul>
+<br>
+<hr>
+<br>
 <ul id="huoneet"></ul>
 <script src="huoneet.js"></script>
-</table>
+
 
 
 </body>

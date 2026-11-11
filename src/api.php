@@ -255,10 +255,28 @@ elseif ($metodi === "GET") {
             $sql->fetchAll(PDO::FETCH_ASSOC),
             JSON_UNESCAPED_UNICODE
         );
-
-        
+        exit;
     }
 
+
+    //HUONEEN HAKU
+    elseif ($tarkoitus === "Huoneen_haku") {
+        $haku = "%" . ($_GET["haku"] ?? "") . "%";
+
+        $sql = $conn->prepare(
+            "SELECT huone_id, tunnus, sijainti
+             FROM Huoneet
+             WHERE tunnus LIKE ? OR sijainti LIKE ?"
+        );
+        $sql->execute([$haku, $haku]);
+
+        echo json_encode(
+            $sql->fetchAll(PDO::FETCH_ASSOC),
+            JSON_UNESCAPED_UNICODE
+        );
+
+        exit;
+    }
 
     // HUONEEN VARAUSAJAT
 
