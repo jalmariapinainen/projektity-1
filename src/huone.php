@@ -36,9 +36,9 @@ curl_close($ch);
                     
                     <div id="paiva_kalenteri">
                         <h2>
-                        <button onclick="vaihda(-1)">←</button>
+                        <button onclick="vaihda(-1)" class="kalenterinappi">←</button>
                         <span id="kuukausi"></span>
-                        <button onclick="vaihda(1)">→</button>
+                        <button onclick="vaihda(1)" class="kalenterinappi">→</button>
                         </h2>
 
                         <div class="paivat" id="kalenteri"></div>
