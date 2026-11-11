@@ -64,7 +64,7 @@ body {}
     display: grid;
     grid-template-columns: 1fr 4fr;
     grid-row: 325px;
-    
+
 }
 
 #huone_muu:hover {
@@ -143,13 +143,15 @@ body {}
     border-bottom: 0.5em solid rgb(179, 179, 179);
     display: flex;
     align-items: center;
-    
+
     border-top-left-radius: 0.5em;
     border-bottom-left-radius: 0.5em;
     margin-left: auto;
     margin-right: auto;
 
     border-top: 0.001em solid rgb(48, 48, 48);
+
+    grid-column: 1;
 }
 
 .aikakortti p {
@@ -164,7 +166,8 @@ body {}
 
 
 
-.varattu, .empty-cell{
+.varattu,
+.empty-cell {
     grid-column: 2;
 
     border-top-right-radius: 0.4em;
@@ -172,19 +175,30 @@ body {}
     border-top: 0.001em solid rgb(63, 63, 63);
 }
 
-.varattu:hover, .empty-cell:hover, .aikakortti:hover{
+.varattu:hover,
+.empty-cell:hover,
+.aikakortti:hover {
     transform: scale(1.04);
 }
 
-.empty-cell{
+.empty-cell {
     background-color: beige;
     border-bottom: 0.5em solid rgb(165, 165, 164);
     width: 97%;
-    
+
 }
 
-.true-tyhjä{
+.true-tyhjä {
     grid-column: 2;
     pointer-events: none;
     display: none;
+}
+
+.ajanvalinta-vali-naytto {
+    background-color: rgba(255, 124, 119, 0.63);
+}
+
+#Huonesijainti {
+    margin-left: auto;
+    margin-right: 5%;
 }

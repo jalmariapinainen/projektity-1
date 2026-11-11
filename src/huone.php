@@ -21,8 +21,8 @@ curl_close($ch);
         <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
         <link rel="stylesheet" href="style.css">
     </head>
-    <body>
-        <div id="huone_otsikko"><h1>Otsikko</h1></div>
+    <body onload="otsikko().catch(error => console.error('Huoneen otsikon haku epäonnistui:', error))">
+        <div id="huone_otsikko"><h1 id="Huonetunnus">Otsikko</h1> <h2 id="Huonesijainti"></h2></div>
         <br>
         <br>
         <div id="huone_rakenne">

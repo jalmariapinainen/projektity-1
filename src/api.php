@@ -288,6 +288,26 @@ elseif ($metodi === "GET") {
         exit;
     }
 
+    //TIETYN HUONEEN TIEDOT
+
+    elseif ($tarkoitus === "Huoneen_tiedot") {
+        $huone = $_GET["huone_id"] ?? "";
+
+        $sql = $conn->prepare(
+            "SELECT tunnus, sijainti FROM Huoneet WHERE huone_id = ?"
+        );
+
+        $sql->execute([$huone]);
+        $tiedot = $sql->fetch(PDO::FETCH_ASSOC);
+
+        if (!$tiedot) {
+            vastaus("Huonetta ei löytynyt.", 404);
+        }
+
+        echo json_encode($tiedot, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     else {
         vastaus("Tuntematon GET-toiminto.", 400);
     }
