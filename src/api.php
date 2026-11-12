@@ -214,24 +214,62 @@ if ($metodi === "POST") {
         $alku = $data["varausaika"] ?? "";
         $loppu = $data["varausloppuaika"] ?? "";
 
+        $paivamaara = is_string($paiva) ? DateTime::createFromFormat("!Y-m-d", $paiva) : false;
+        $kelvollinenPaiva = $paivamaara && $paivamaara->format("Y-m-d") === $paiva;
+        $kelvollinenAika = static function ($aika) {
+            return is_string($aika) && preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $aika);
+        };
+
+        if (!filter_var($huone, FILTER_VALIDATE_INT) || !$kelvollinenPaiva ||
+            !$kelvollinenAika($alku) || !$kelvollinenAika($loppu) || $loppu <= $alku) {
+            vastaus("Valitse kelvollinen huone, päivä ja alkamis- sekä päättymisaika.", 400);
+        }
+
+        $huoneTarkistus = $conn->prepare(
+            "SELECT huone_id FROM Huoneet WHERE huone_id = ?"
+        );
+        $huoneTarkistus->execute([$huone]);
+        if (!$huoneTarkistus->fetch()) {
+            vastaus("Valittua huonetta ei löytynyt.", 404);
+        }
+
+        $varausTarkistus = $conn->prepare(
+            "SELECT varaus_id FROM Varaukset
+             WHERE huone_id = ? AND varauspaiva = ?
+               AND varausaika < ? AND varausloppuaika > ?
+             LIMIT 1"
+        );
+        $varausTarkistus->execute([$huone, $paiva, $loppu, $alku]);
+        if ($varausTarkistus->fetch()) {
+            vastaus("Valittu aika on jo varattu.", 409);
+        }
+
         $sql = $conn->prepare(
             "INSERT INTO Varaukset
             (huone_id, varauspaiva, varausaika, varausloppuaika, kayttaja)
             VALUES (?, ?, ?, ?, ?)"
         );
 
-        $sql->execute([
-            $huone,
-            $paiva,
-            $alku,
-            $loppu,
-            $_SESSION["kayttaja_id"]
-        ]);
+        try {
+            $sql->execute([
+                $huone,
+                $paiva,
+                $alku,
+                $loppu,
+                $_SESSION["kayttaja_id"]
+            ]);
+        } catch (PDOException $e) {
+            error_log("Varauksen tallennus epäonnistui: " . $e->getMessage());
+            vastaus("Varauksen tallennus epäonnistui.", 500);
+        }
 
         vastaus("Varaus lisätty!");
     }
 
-    elseif($tarkoitus == "Huoneen_ajat"){ //Kun ollaan tietyn huoneen sivulla, niin näytetään sen huoneen mahdolliset ajat
+    else {
+        vastaus("Tuntematon POST-toiminto.", 400);
+    }
+}
 
 // ============================
 // GET
