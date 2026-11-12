@@ -17,6 +17,8 @@ body{
     background-color: rgb(0, 51, 102);
     padding-top: 5px;
     padding-bottom: 5px;
+    font-size: 20px;
+    
 
 
 }
@@ -94,8 +96,8 @@ body{
 
 
 .huoneen_tunnus{
-    width: 95%;
-    height: 60%;
+    width: 85%;
+    height: 40%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -109,15 +111,17 @@ body{
     background-color: #d4d1d1;
     padding: 20px;
     margin: auto;
-    border-radius: 1em;
+    border-radius: 2em;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     list-style-type: none;
     
     color: #000000;
     text-decoration: none;
     
-    width: 100%;
-    margin-bottom: 5%;
+    width: 5%;
+    margin-bottom: 10%;
+    height: 50%;
+    
     
 
 }
@@ -151,7 +155,8 @@ body{
 
 #huoneet > li,
 #haku-huoneet > li {
-    min-width: 0;
+    min-width: 1;
+
 }
 
 .huoneKortti {
@@ -163,8 +168,9 @@ body{
 
 .huoneKorttiLinkki {
     display: block;
-    height: 30vh;
+    height: 15vh;
     color: inherit;
+    width: 30vh;
 
     text-decoration: none;
     margin-top: 1em;
@@ -183,8 +189,9 @@ form {
     background-color: white;
     width: 90%;
     height: 100%;
-    padding: 2em;
+    padding: 3em;
     margin: auto;
+    
 }
 
 #nav>ul{
@@ -259,4 +266,42 @@ body {
 
 #message {
     color: green;
+}
+#huone-haku-kenttä {
+    width: 30%;
+    height: 50px;
+    margin: 8px;
+    box-sizing: border-box;
+    font-size: 20px;
+   
+
+}
+button{
+       appearance: auto;
+    text-rendering: auto;
+    color: buttontext;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+    display: inline-block;
+    text-align: center;
+    cursor: default;
+    box-sizing: border-box;
+    background-color: buttonface;
+    margin: 0em 0em 0em 0em;
+    padding-block: 1px;
+    padding-inline: 6px;
+    border-width: 2px;
+    border-style: outset;
+    border-color: buttonborder;
+    border-image: none;
+    width: 60px;
+    height:50px;
+    font-size: 15px;
+}
+#kirjautumistarkistus{
+    font-size: 30px;
 }
