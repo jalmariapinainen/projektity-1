@@ -1,0 +1,202 @@
+:root {
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            color: #172033;
+            background: #f3f6fb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        #proffa {
+            min-height: 100vh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background:
+                radial-gradient(ellipse at top left, #e1eaff 0, transparent 42%),
+                #f3f6fb;
+        }
+
+        .profile-card {
+            width: min(100%, 460px);
+            padding: 40px;
+            border: 1px solid #e6eaf1;
+            border-radius: 20px;
+            background: #fff;
+            box-shadow: 0 20px 55px rgba(27, 44, 75, 0.1);
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 76px;
+            height: 76px;
+            margin: 0 auto 22px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #e9efff;
+            color: #3559c7;
+            font-size: 30px;
+            font-weight: 700;
+        }
+
+        .eyebrow {
+            margin: 0 0 8px;
+            color: #61708a;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(28px, 6vw, 36px);
+        }
+
+        h2 {
+            margin-top: 25px;
+        }
+
+        .description {
+            margin: 12px 0 28px;
+            color: #69758a;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .actions {
+            display: grid;
+            gap: 12px;
+        }
+
+        button {
+            width: 100%;
+            min-height: 48px;
+            padding: 12px 18px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            font: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #change, #save {
+            background: #3559c7;
+            color: white;
+        }
+
+        #change:hover, #save:hover {
+            background: #2949ab;
+        }
+
+        #logout, #cancel {
+            border-color: #dce2ec;
+            background: white;
+            color: #344158;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            margin: 8px 0;
+            border: 1px solid #dce2ec;
+            border-radius: 8px;
+            font: inherit;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-top: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        #passwordForm {
+            display: none;
+            margin-top: 20px;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 480px) {
+            .profile-card {
+                padding: 32px 24px;
+            }
+        }
+
+        .nav {
+    background-color: rgb(0, 51, 102);
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+
+}
+
+#nav>ul{
+    display: grid;
+    list-style: none;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+#nav>ul>li{
+    margin: auto;
+}
+
+#nav>ul>li>a{
+    color: white;
+    text-decoration: none;
+
+}
+#nav>ul>li>a:hover,
+#nav>ul>li>a:focus-visible {
+  text-decoration: underline;
+}
+
+.ajanvaraukset{
+    margin: auto;
+    width: 60%;
+    background-color: white;
+    border-radius: 1em;
+    padding: 1em;
+}
+
+.ajanvaraukset>h1{
+    text-align: center;
+
+}
+
+.ajanvaraus{
+    width: 100%;
+    border: 1px solid rgb(109, 109, 109);
+    border-radius: 1em;
+    padding: 0.4em;   
+    transition: transform 0.3s ease-in-out;
+}
+
+.ajanvaraus:hover{
+    transform: scale(1.02);
+}
+
+.ajanvaraus>button:hover{
+    background-color: rgba(148, 147, 147, 0.521);
+}
+
+.poisto-nappi{
+    background-color: rgba(252, 85, 85, 0.856);
+}
+.poisto-nappi:hover{
+    background-color: rgba(253, 149, 149, 0.856) !important;
+}
+
+#varatut_ajat{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}

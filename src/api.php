@@ -397,6 +397,27 @@ elseif ($metodi === "GET") {
         exit;
     }
 
+    elseif($tarkoitus === "kayttajan_ajat"){
+        if (empty($_SESSION["kayttaja_id"])) {
+            vastaus("Kirjaudu ensin sisään.", 401);
+        }
+
+        $kayttaja = $_SESSION["kayttaja_id"];
+
+        $sql = $conn->prepare(
+            "SELECT Varaukset.varaus_id, Varaukset.huone_id, Huoneet.tunnus, Huoneet.sijainti, Varaukset.varauspaiva, Varaukset.varausaika, Varaukset.varausloppuaika FROM Varaukset
+            LEFT JOIN Huoneet
+            ON Varaukset.huone_id = Huoneet.huone_id
+            WHERE Varaukset.kayttaja = ?"
+        );
+
+        $sql->execute([$kayttaja]);
+        $tiedot = $sql->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode($tiedot, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     else {
         vastaus("Tuntematon GET-toiminto.", 400);
     }
@@ -410,34 +431,107 @@ elseif ($metodi === "GET") {
 // ============================
 
 elseif ($metodi === "PUT") {
+$tarkoitus = $data["tarkoitus"] ?? "";
 
-    if (empty($_SESSION["kayttaja_id"])) {
-        vastaus("Kirjaudu ensin sisään.", 401);
+    if($tarkoitus === "editVaraus"){
+
+        if (empty($_SESSION["kayttaja_id"])) {
+            vastaus("Kirjaudu ensin sisään.", 401);
+        }
+
+        $id = $data["varaus_id"] ?? "";
+        $huone = $data["huone"] ?? "";
+        $paiva = $data["varausPaiva"] ?? "";
+        $alku = $data["varausAika"] ?? "";
+        $loppu = $data["varausLoppu"] ?? "";
+
+
+        $kelvollinenAika = '/^(?:0[6-9]|1[0-9]):(00|30):00$|^20:00:00$/';
+
+        if ( //virheen tarkistus inputeille
+            $id === "" ||
+            $huone === "" ||
+            $paiva === "" ||
+            !preg_match($kelvollinenAika, $alku) ||
+            !preg_match($kelvollinenAika, $loppu) ||
+            $alku >= $loppu
+        ) {
+            vastaus("Tarkista varauksen huone, päivä ja kellonajat.", 400);
+        }
+
+        try {
+            //varmistaa huoneen silti olemassaolon
+            $conn->beginTransaction();
+
+            $lukitseHuone = $conn->prepare(
+                "SELECT huone_id FROM Huoneet WHERE huone_id = ? FOR UPDATE"
+            );
+            $lukitseHuone->execute([$huone]);
+
+            if ($lukitseHuone->fetchColumn() === false) {
+                $conn->rollBack();
+                vastaus("Huonetta ei löytynyt.", 404);
+            }
+
+            //katsoo jos se on lähettäjän varaus
+            $omaVaraus = $conn->prepare(
+                "SELECT varaus_id
+                FROM Varaukset
+                WHERE varaus_id = ? AND kayttaja = ?
+                FOR UPDATE"
+            );
+            $omaVaraus->execute([$id, $_SESSION["kayttaja_id"]]);
+
+            if ($omaVaraus->fetchColumn() === false) {
+                $conn->rollBack();
+                vastaus("Varausta ei löytynyt tai se ei kuulu sinulle.", 404);
+            }
+
+            //tarkistaa ettei ole varauksia uuden ajan välillä
+            $tarkistus = $conn->prepare(
+                "SELECT 1
+                FROM Varaukset
+                WHERE huone_id = ?
+                AND varauspaiva = ?
+                AND varausaika < ?
+                AND varausloppuaika > ?
+                AND varaus_id <> ?
+                LIMIT 1"
+            );
+            $tarkistus->execute([$huone, $paiva, $loppu, $alku, $id]);
+
+            if ($tarkistus->fetchColumn() !== false) {
+                $conn->rollBack();
+                vastaus("Valittu aika on jo varattu.", 409);
+            }
+
+            //Jos ei ole aikoja välillä ja kaikki on hyvin, niin päivitetään huoneen varaus
+            $sql = $conn->prepare(
+                "UPDATE Varaukset
+                SET huone_id = ?, varauspaiva = ?,
+                    varausaika = ?, varausloppuaika = ?
+                WHERE varaus_id = ? AND kayttaja = ?"
+            );
+            $sql->execute([
+                $huone,
+                $paiva,
+                $alku,
+                $loppu,
+                $id,
+                $_SESSION["kayttaja_id"]
+            ]);
+
+            $conn->commit();
+        } catch (PDOException $e) {
+            if ($conn->inTransaction()) {
+                $conn->rollBack();
+            }
+            error_log("Varauksen päivittäminen epäonnistui: " . $e->getMessage());
+            vastaus("Varauksen päivittäminen epäonnistui tietokantavirheen vuoksi.", 500);
+        }
+
+        vastaus("Varaus päivitetty!");
     }
-
-    $id = $data["varaus_id"] ?? "";
-    $huone = $data["huone"] ?? "";
-    $paiva = $data["varausPaiva"] ?? "";
-    $alku = $data["varausAika"] ?? "";
-    $loppu = $data["varausLoppu"] ?? "";
-
-    $sql = $conn->prepare(
-        "UPDATE Varaukset
-         SET huone_id = ?, varauspaiva = ?,
-             varausaika = ?, varausloppuaika = ?
-         WHERE varaus_id = ? AND kayttaja = ?"
-    );
-
-    $sql->execute([
-        $huone,
-        $paiva,
-        $alku,
-        $loppu,
-        $id,
-        $_SESSION["kayttaja_id"]
-    ]);
-
-    vastaus("Varaus päivitetty!");
 }
 
 
@@ -446,25 +540,40 @@ elseif ($metodi === "PUT") {
 // ============================
 
 elseif ($metodi === "DELETE") {
-
+    //ainoastaan kirjautunut pystyy yrittää poistaa
     if (empty($_SESSION["kayttaja_id"])) {
         vastaus("Kirjaudu ensin sisään.", 401);
     }
+    //mitä poistetaan
+    $tarkoitus = $data["tarkoitus"] ?? "";
 
-    $id = $data["varaus_id"] ?? "";
+    if ($tarkoitus === "poistaVaraus") {
 
-    $sql = $conn->prepare(
-        "DELETE FROM Varaukset
-         WHERE varaus_id = ? AND kayttaja = ?"
-    );
+        //muuttuja
+        $id = $data["varaus_id"] ?? "";
 
-    $sql->execute([$id, $_SESSION["kayttaja_id"]]);
+        //virheen tarkastus
+        if ($id === "") {
+            vastaus("Varauksen tunnus puuttuu.", 400);
+        }
 
-    vastaus("Varaus poistettu!");
+        //poisto komento
+        $sql = $conn->prepare(
+            "DELETE FROM Varaukset
+            WHERE varaus_id = ? AND kayttaja = ?"
+        );
+        $sql->execute([$id, $_SESSION["kayttaja_id"]]);
+
+        //Jos ei ole varausta, missä id on haettu ja sinun käyttäjä on varauksen tekijä, niin virhe ilmoitetaan
+        if ($sql->rowCount() === 0) {
+            vastaus("Varausta ei löytynyt tai se ei kuulu sinulle.", 404);
+        }
+
+        //onnistuneesta poistosta ilmoitetaan
+        vastaus("Varaus poistettu!");
+    }
 }
-
 else {
     vastaus("Metodia ei tueta.", 405);
 }
-
 ?>
