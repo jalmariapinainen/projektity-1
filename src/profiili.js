@@ -139,7 +139,7 @@ document.getElementById("logout").addEventListener("click", async function() {
 
         if (response.ok) {
 
-            window.location.href = "src/kirjautuminen.php";
+            window.location.href = "kirjautuminen.php";
 
         } else {
 

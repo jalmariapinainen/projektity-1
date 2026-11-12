@@ -426,7 +426,7 @@ async function ajanlisays() {
     const aikaMuoto = /^(?:[01]?\d|2[0-3]):[0-5]\d$/;
     if (!aikaMuoto.test(alkuSyote) || !aikaMuoto.test(loppuSyote)) {
         message.style.backgroundColor = "red";
-        message.textContent = "Anna ajat muodossa esimerkiksi 8:00 tai 13:30.";
+        message.textContent = "Anna ajat oikeassa muodossa puolen tunnin välein.";
         return;
     }
 

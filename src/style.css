@@ -258,7 +258,7 @@
 #lisäys_lomake {
     background-color: rgb(221, 220, 220);
     width: 90%;
-    height: 31em;
+    height: auto;
     padding: 1em;
     border-radius: 1em;
 }

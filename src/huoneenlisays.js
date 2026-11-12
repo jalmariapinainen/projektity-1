@@ -165,7 +165,13 @@ function checkInput(tunnus, sijainti, pintaAla){
         message.style.color = "red";
         message.textContent = "Pinta-alan pitää olla kokonaisluku väliltä 1–999.";
         return false;
-    }else{
+    }
+    else if(tunnus.length > 25 || sijainti.length > 50){
+        message.style.color = "red";
+        message.textContent = "Liian pitkä nimi tai sijainti.";
+        return false;
+    }
+    else{
         return true;
     }
 }
