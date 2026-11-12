@@ -46,7 +46,7 @@ CREATE TABLE Varaukset (
 
 --Testi dataa (Ensin Kayttajat, muuten virhe tulee lisäämisessä) --
 
-INSERT INTO Kayttajat (kayttajatunnus, salasana, puh) 
+INSERT INTO Kayttajat (kayttajatunnus, sahkoposti, salasana, puh) 
 VALUES 
 ('matti_meikalainen', 'matti.meikalainen@example.com', 'salasana123', '040 123 4567'),
 ('maija_teikalainen', 'maija.teikalainen@example.com', 'turvallinen456', '045 876 5432');
