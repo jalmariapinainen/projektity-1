@@ -245,7 +245,7 @@ if ($metodi === "POST") {
             vastaus("Varauksen lisääminen epäonnistui tietokantavirheen vuoksi.", 500);
         }
 
-        vastaus("Varaus lisätty!");
+        vastaus("Huoneen varaus lisätty!");
     }
 
     elseif($tarkoitus == "Huoneen_ajat"){ //Kun ollaan tietyn huoneen sivulla, niin näytetään sen huoneen mahdolliset ajat

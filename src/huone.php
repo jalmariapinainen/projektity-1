@@ -25,6 +25,7 @@ curl_close($ch);
         <?php
         include "header.php";
         ?>
+        <div id="background">
         <br>
         <br>
         <div id="huone_otsikko"><h1 id="Huonetunnus">Otsikko</h1> <h2 id="Huonesijainti"></h2></div>
@@ -77,13 +78,15 @@ curl_close($ch);
                             <label for="aloitusAika" id="aloitusTeksti">Start</label>
                             <input type="text" id="aloitusAika" placeholder="8:00" required>
                         </div>
-                        <p>:</p>
+                        <p id="aikaKaksoispiste">:</p>
                         <div id="lopetus_aika_input">
                             <label for="lopetusAika" id="lopetusTeksti">End</label>
                             <input type="text" id="lopetusAika" placeholder="9:30" required>
                         </div>
                     </div>
-                    <button onclick="ajanlisays()">Lisää</button>
+                    <br>
+                    <br>
+                    <button onclick="ajanlisays()" class="varauslisaysnappi">Lisää</button>
                     <div id="huone-lisays-message-div">
                     <p id="huone-lisays-message"></p>
                     </div>
@@ -98,6 +101,7 @@ curl_close($ch);
 
                 
             </script>
+        </div>
         </div>
     </body>
 </html>

@@ -45,7 +45,7 @@ function kalenteri() {
                 valintapaiva;
             document.getElementById("valittu_paivateksti").textContent =
                 "Valittu päivä: " + valintapaiva;
-                document.getElementById("valittu_paivateksti_form").textContent =
+            document.getElementById("valittu_paivateksti_form").textContent =
                 "Valittu päivä: " + valintapaiva;
             kalenteri();
         };
@@ -184,7 +184,7 @@ async function nayta() {
     //aikojen paikan kutsuminen
     const paikka = document.querySelector("#huone_ajat"); //Tähän tulee kaikki ajat
     paikka.replaceChildren();
-    paikka.style.gridTemplateRows = "repeat("+kellonajat.length+")";
+    paikka.style.gridTemplateRows = "repeat(" + kellonajat.length + ")";
 
 
 
@@ -230,12 +230,16 @@ async function nayta() {
         if (varausAlkavaNyt) {
             varauskortti.classList.add("varattu");
             const varauspara = document.createElement("p");
-            varauspara.textContent = varausAlkavaNyt.kayttajatunnus;
+            varauspara.setAttribute('style', 'white-space: pre;');
+            varauspara.textContent = varausAlkavaNyt.kayttajatunnus + "\r\n";
+            varauspara.textContent += varausAlkavaNyt.varausaika + "-" + varausAlkavaNyt.varausloppuaika;
+
             const loppuGridRow = ajanvarauksenSuuruus(
                 varausAlkavaNyt.varausaika,
                 varausAlkavaNyt.varausloppuaika,
                 gridrow
             );
+            varauspara.style.fontSize = "clamp(15px, " + loppuGridRow / gridrow * 47 + "%, 170%)";
             varauskortti.style.gridRow = gridrow + " / " + loppuGridRow;
             varauskortti.appendChild(varauspara);
         } else if (varausPaalleNyt) {
@@ -259,19 +263,19 @@ async function nayta() {
     });
 
 }
-    //========================
-    //Funktioita ajoille
-    //========================
+//========================
+//Funktioita ajoille
+//========================
 
-    function ajanvarauksenSuuruus(alku, loppu, alkuRow) { //tähän menee apin palautuksen aloitus ja lopetusaika, jotta saadaan varatun ajan divin pituus.
-        const minuutteina = aika => {
-            const [tunnit, minuutit] = aika.split(":").map(Number);
-            return tunnit * 60 + minuutit;
-        };
+function ajanvarauksenSuuruus(alku, loppu, alkuRow) { //tähän menee apin palautuksen aloitus ja lopetusaika, jotta saadaan varatun ajan divin pituus.
+    const minuutteina = aika => {
+        const [tunnit, minuutit] = aika.split(":").map(Number);
+        return tunnit * 60 + minuutit;
+    };
 
-        const kestoRiveina = (minuutteina(loppu) - minuutteina(alku)) / 30;
-        return alkuRow + kestoRiveina;
-    }
+    const kestoRiveina = (minuutteina(loppu) - minuutteina(alku)) / 30;
+    return alkuRow + kestoRiveina;
+}
 
 
 function lataaAjat() {
@@ -404,7 +408,7 @@ function Valimaalaus(a, b) {
 //Ajan lisäys funktio
 //============================
 
-async function ajanlisays(){
+async function ajanlisays() {
     //muuttujat
     const message = document.getElementById("huone-lisays-message");
     const alkuSyote = document.getElementById("aloitusAika").value.trim();
@@ -413,6 +417,7 @@ async function ajanlisays(){
 
     //tarkistetaan jos kentät on tyhjät
     if (!huoneId || !alkuSyote || !loppuSyote) {
+        message.style.backgroundColor = "red";
         message.textContent = "Valitse huone sekä varauksen alku- ja loppuaika.";
         return;
     }
@@ -420,6 +425,7 @@ async function ajanlisays(){
     //tarkistetaan kentän kelpoisuus
     const aikaMuoto = /^(?:[01]?\d|2[0-3]):[0-5]\d$/;
     if (!aikaMuoto.test(alkuSyote) || !aikaMuoto.test(loppuSyote)) {
+        message.style.backgroundColor = "red";
         message.textContent = "Anna ajat muodossa esimerkiksi 8:00 tai 13:30.";
         return;
     }
@@ -429,11 +435,13 @@ async function ajanlisays(){
     const loppu = muunnaKellonaikaTietokantaan(loppuSyote);
     const aikavali = /^(?:0[6-9]|1\d):(?:00|30):00$|^20:00:00$/;
     if (!aikavali.test(alku) || !aikavali.test(loppu)) {
+        message.style.backgroundColor = "red";
         message.textContent = "Valitse ajat puolen tunnin välein väliltä 6:00–20:00.";
         return;
     }
 
     if (minuutitKellonajasta(alku) >= minuutitKellonajasta(loppu)) {
+        message.style.backgroundColor = "red";
         message.textContent = "Loppuajan pitää olla aloitusajan jälkeen.";
         return;
     }
@@ -462,6 +470,7 @@ async function ajanlisays(){
         }
 
         //syötetään vastaus, jos lähetys meni läpi
+        message.style.backgroundColor = "green";
         message.textContent = data.message;
 
         //resetoidaan forms kentät
@@ -473,6 +482,7 @@ async function ajanlisays(){
         //virheen ilmoitus
     } catch (error) {
         console.error("Varauksen lisääminen epäonnistui:", error);
+        message.style.backgroundColor = "red";
         message.textContent = error.message || "Varauksen lisääminen epäonnistui.";
     }
 }
@@ -482,7 +492,7 @@ async function ajanlisays(){
 //Tarkistaa jos käyttäjä on kirjautunut
 //Jos ei ole, niin ei anna tehdä varauksen lisäystä
 //===================================================
-async function kayttajatunnus(){
+async function kayttajatunnus() {
     const lomakevirhesyy = document.getElementById("lomakevirhesyy");
     const lisayslomake = document.getElementById("lisäys_lomake");
     const virhediv = document.getElementById("kirjautuminen_peite");
@@ -493,15 +503,15 @@ async function kayttajatunnus(){
             lisayslomake.style.filter = "blur(10px)";
             virhediv.removeAttribute('hidden');
             lomakevirhesyy.textContent = "Kirjaudu sisään tehdäksesi varauksen.";
-            
+
             return;
         }
         if (!vastaus.ok) {
-            throw new Error("API-virhe: "+vastaus.status);
+            throw new Error("API-virhe: " + vastaus.status);
         }
 
         const kayttaja = await vastaus.json();
-        kirjautumisviesti.textContent = "Kirjautunut käyttäjä: "+kayttaja.kayttajatunnus;
+        kirjautumisviesti.textContent = "Kirjautunut käyttäjä: " + kayttaja.kayttajatunnus;
     } catch (error) {
         console.error(error);
         lomakevirhesyy.textContent =
