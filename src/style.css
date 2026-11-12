@@ -4,6 +4,9 @@
     grid-template-columns: 1.2fr 1.5fr 1.5fr;
     margin: auto;
     column-gap: 20px;
+    background-color: white;
+    padding: 1.4em;
+    border-radius: 1em;
 }
 
 
@@ -25,8 +28,8 @@
 }
 
 #huone_otsikko {
-    background-color: beige;
-    width: 60%;
+    background-color: rgb(238, 196, 81);
+    width: 62%;
     height: 6em;
     margin: auto;
     border-radius: 1em;
@@ -210,24 +213,27 @@
     gap: 6px;
 }
 
-#aijanvaraus_aika_inputs > p {
+#aijanvaraus_aika_inputs>p {
     margin: 0 0 4px;
 }
 
-#aijanvaraus_aika_inputs > div {
+#aijanvaraus_aika_inputs>div {
     min-width: 0;
 }
 
-#lopetusAika, #aloitusAika{
+#lopetusAika,
+#aloitusAika {
     box-sizing: border-box;
-    width: 4rem;
+    width: 7rem;
 }
 
-#aloitus_aika_input, #lopetus_aika_input {
+#aloitus_aika_input,
+#lopetus_aika_input {
     width: auto;
 }
 
-#aloitusTeksti, #lopetusTeksti {
+#aloitusTeksti,
+#lopetusTeksti {
     display: block;
 }
 
@@ -235,7 +241,7 @@
     text-align: right;
 }
 
-#valittu_paivateksti_form{
+#valittu_paivateksti_form {
     background-color: white;
     padding: 1em;
     border-radius: 1em;
@@ -249,10 +255,10 @@
     align-self: stretch;
 }
 
-#lisäys_lomake{
-    background-color: rgb(196, 196, 196);
+#lisäys_lomake {
+    background-color: rgb(221, 220, 220);
     width: 90%;
-    height: calc(100% - 2em);
+    height: 31em;
     padding: 1em;
     border-radius: 1em;
 }
@@ -273,14 +279,19 @@
     border: 0.2em solid rgb(0, 51, 102);
 }
 
-#huone-lisays-message-div{
-    
+#huone-lisays-message {
+
     margin: auto;
-    width: 100%;
-    padding: 1em;
-    font-size: 1em;
-    border-radius: 1em;
     text-align: center;
+    font-size: 1.3em;
+    width: 60%;
+    padding: 15px;
+    border-radius: 1rem;
+    color: white;
+}
+
+#huone-lisays-message-div {
+    margin-top: 1em;
 }
 
 .nav {
@@ -291,22 +302,79 @@
 
 }
 
-#nav>ul{
+#nav>ul {
     display: grid;
     list-style: none;
     grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
-#nav>ul>li{
+#nav>ul>li {
     margin: auto;
 }
 
-#nav>ul>li>a{
+#nav>ul>li>a {
     color: white;
     text-decoration: none;
 
 }
+
 #nav>ul>li>a:hover,
 #nav>ul>li>a:focus-visible {
-  text-decoration: underline;
+    text-decoration: underline;
+}
+
+input {
+    width: 100%;
+    padding: 13px;
+    margin: 0;
+    border: 1px solid #dce2ec;
+    border-radius: 8px;
+    font: inherit;
+    margin-left: 4%;
+}
+
+label {
+    display: block;
+    text-align: left;
+    margin-top: 12px;
+    font-size: 1.3em;
+    font-weight: 600;
+    margin-left: 3%;
+}
+
+#aikaKaksoispiste {
+    font-size: 3em;
+
+}
+
+.varauslisaysnappi {
+    width: 25%;
+    height: auto;
+    padding: 1em;
+    border-radius: 1em;
+    margin-left: 37.5%;
+    background-color: #2563eb;
+    color: white;
+    transition: transform 0.3s ease-in-out;
+}
+
+.varauslisaysnappi:hover {
+    transform: scale(1.04);
+    background-color: #4b7ce6;
+}
+
+#background {
+    background-color: #eee;
+    height: 93.5vh;
+    font-family: arial;
+}
+
+.varattu {
+    font-size: 1em;
+    overflow: auto;
+    border-left: 5px solid red;
+}
+
+.varattu::-webkit-scrollbar {
+    display: none;
 }
