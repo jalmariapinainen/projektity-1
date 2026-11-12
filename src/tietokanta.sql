@@ -1,5 +1,4 @@
 
--- PHPMyADMIN koodi --
 
 
 
@@ -8,22 +7,23 @@
 CREATE DATABASE IF NOT EXISTS Projekti1New;
 USE Projekti1New;
 
--- 1. Luodaan Kayttajat-taulu
+
 CREATE TABLE Kayttajat (
     kayttaja_id INT AUTO_INCREMENT PRIMARY KEY,
-    kayttajatunnus VARCHAR(254) NOT NULL UNIQUE,
-    salasana VARCHAR(255) NOT NULL,
+    kayttajatunnus VARCHAR(50),
+    sahkoposti VARCHAR(50),
+    salasana VARCHAR(255),
     puh VARCHAR(20)
 );
 
--- 2. Luodaan Huoneet-taulu (kuvan mukainen rakenne)
 CREATE TABLE Huoneet (
     huone_id INT AUTO_INCREMENT PRIMARY KEY,
     tunnus VARCHAR(25),
-    sijainti VARCHAR(50)
+    sijainti VARCHAR(50),
+    pintaAla INT(3)
 );
 
--- 3. Luodaan Varaukset-taulu, joka viittaa sekä huoneisiin että käyttäjiin
+
 CREATE TABLE Varaukset (
     varaus_id INT AUTO_INCREMENT PRIMARY KEY,
     huone_id INT,
@@ -40,18 +40,18 @@ CREATE TABLE Varaukset (
 );
 
 
--- Testi dataa (Ensin Kayttajat, muuten virhe tulee lisäämisessä)
+
 
 INSERT INTO Kayttajat (kayttajatunnus, salasana, puh) 
 VALUES 
-('matti_meikalainen', 'salasana123', '040 123 4567'),
-('maija_teikalainen', 'turvallinen456', '045 876 5432');
+('matti_meikalainen', 'matti.meikalainen@example.com', 'salasana123', '040 123 4567'),
+('maija_teikalainen', 'maija.teikalainen@example.com', 'turvallinen456', '045 876 5432');
 
 
-INSERT INTO Huoneet (tunnus, sijainti) 
+INSERT INTO Huoneet (tunnus, sijainti, pintaAla) 
 VALUES 
-('Huone 101', '1. kerros, Voima'),
-('Huone 102', '2. kerros, Voima');
+('Huone 101', '1. kerros, Voima', '32'),
+('Huone 102', '2. kerros, Voima', '24');
 
 
 INSERT INTO Varaukset (huone_id, varauspaiva, varausaika, varausloppuaika, kayttaja) 

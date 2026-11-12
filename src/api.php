@@ -1,5 +1,12 @@
 <?php
 
+session_set_cookie_params([
+    "lifetime" => 0,
+    "path" => "/",
+    "secure" => !empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== "off",
+    "httponly" => true,
+    "samesite" => "Lax"
+]);
 session_start();
 
 header("Content-Type: application/json; charset=utf-8");
@@ -38,13 +45,15 @@ if ($metodi === "POST") {
     if ($tarkoitus === "kayttajaLisays") {
 
         $tunnus = trim($data["kayttajatunnus"] ?? "");
+        $sahkoposti = trim($data["sahkoposti"] ?? "");
         $salasana = $data["salasana"] ?? "";
         $puhelin = trim($data["puhelinnumero"] ?? $data["puh"] ?? "");
 
         if ($tunnus === "" || strlen($tunnus) > 254 || strlen($salasana) < 8) {
             vastaus("Käyttäjätunnuksen enimmäispituus on 254 merkkiä ja salasanan vähimmäispituus 8 merkkiä.", 400);
         }
-
+        
+        //tarkistetaan onko käyttäjää jo tietokannassa
         $tarkistus = $conn->prepare(
             "SELECT kayttaja_id FROM Kayttajat WHERE kayttajatunnus = ?"
         );
@@ -52,17 +61,18 @@ if ($metodi === "POST") {
 
         if ($tarkistus->fetch()) {
             vastaus("Käyttäjätunnus on jo käytössä.", 409);
-        }
+            
+        } //poistuu takaisin sivulle, jos käyttäjä on jo olemassa
 
         $hash = password_hash($salasana, PASSWORD_DEFAULT);
 
         $sql = $conn->prepare(
-            "INSERT INTO Kayttajat (kayttajatunnus, salasana, puh)
-             VALUES (?, ?, ?)"
+            "INSERT INTO Kayttajat (kayttajatunnus, sahkoposti, salasana, puh)
+             VALUES (?, ?, ?, ?)"
         );
 
         try {
-            $sql->execute([$tunnus, $hash, $puhelin]);
+            $sql->execute([$tunnus, $sahkoposti, $hash, $puhelin]);
         } catch (PDOException $e) {
             error_log("Käyttäjän rekisteröinti epäonnistui: " . $e->getMessage());
             vastaus("Rekisteröityminen epäonnistui. Tarkista tiedot ja yritä uudelleen.", 500);
@@ -72,52 +82,7 @@ if ($metodi === "POST") {
     }
 
 
-    // KIRJAUTUMINEN
-
-    elseif ($tarkoitus === "kirjautuminen") {
-
-        $tunnus = trim($data["kayttajatunnus"] ?? "");
-        $salasana = $data["salasana"] ?? "";
-
-        $sql = $conn->prepare(
-            "SELECT kayttaja_id, kayttajatunnus, salasana
-             FROM Kayttajat
-             WHERE kayttajatunnus = ?"
-        );
-
-        $sql->execute([$tunnus]);
-        $kayttaja = $sql->fetch(PDO::FETCH_ASSOC);
-
-        if (!$kayttaja) {
-            vastaus("Virheellinen käyttäjätunnus tai salasana.", 401);
-        }
-
-        $oikein = password_verify($salasana, $kayttaja["salasana"]);
-
-        // Vanhojen testitunnusten käsittely
-        if (!$oikein && hash_equals($kayttaja["salasana"], $salasana)) {
-
-            $hash = password_hash($salasana, PASSWORD_DEFAULT);
-
-            $paivitys = $conn->prepare(
-                "UPDATE Kayttajat SET salasana = ? WHERE kayttaja_id = ?"
-            );
-
-            $paivitys->execute([$hash, $kayttaja["kayttaja_id"]]);
-
-            $oikein = true;
-        }
-
-        if (!$oikein) {
-            vastaus("Virheellinen käyttäjätunnus tai salasana.", 401);
-        }
-
-        session_regenerate_id(true);
-
-        $_SESSION["kayttaja_id"] = $kayttaja["kayttaja_id"];
-
-        vastaus("Kirjautuminen onnistui!");
-    }
+    
 
 
     // SALASANAN VAIHTO
@@ -187,15 +152,19 @@ if ($metodi === "POST") {
     // HUONEEN LISÄÄMINEN
 
     elseif ($tarkoitus === "huoneLisäys") {
-
+    if(empty($_SESSION["kayttaja_id"]) || ($_SESSION["kayttajatunnus"] ?? "") !== "Admin")
+        {
+            vastaus("Vain ylläpitäjä voi lisätä huoneita.", 403);
+        }
         $tunnus = $data["tunnus"] ?? "";
         $sijainti = $data["sijainti"] ?? "";
+        $pintaAla = $data["pintaAla"] ?? "";
 
         $sql = $conn->prepare(
-            "INSERT INTO Huoneet (tunnus, sijainti) VALUES (?, ?)"
+            "INSERT INTO Huoneet (tunnus, sijainti, pintaAla) VALUES (?, ?, ?)"
         );
 
-        $sql->execute([$tunnus, $sijainti]);
+        $sql->execute([$tunnus, $sijainti, $pintaAla]);
 
         vastaus("Huone lisätty!");
     }
@@ -214,25 +183,121 @@ if ($metodi === "POST") {
         $alku = $data["varausaika"] ?? "";
         $loppu = $data["varausloppuaika"] ?? "";
 
-        $sql = $conn->prepare(
-            "INSERT INTO Varaukset
-            (huone_id, varauspaiva, varausaika, varausloppuaika, kayttaja)
-            VALUES (?, ?, ?, ?, ?)"
-        );
+        $kelvollinenAika = '/^(?:0[6-9]|1[0-9]):(00|30):00$|^20:00:00$/';
+        if (
+            $huone === "" ||
+            $paiva === "" ||
+            !preg_match($kelvollinenAika, $alku) ||
+            !preg_match($kelvollinenAika, $loppu) ||
+            $alku >= $loppu
+        ) {
+            vastaus("Tarkista varauksen huone, päivä ja kellonajat.", 400);
+        }
 
-        $sql->execute([
-            $huone,
-            $paiva,
-            $alku,
-            $loppu,
-            $_SESSION["kayttaja_id"]
-        ]);
+        try {
+            $conn->beginTransaction();
+
+            $lukitseHuone = $conn->prepare(
+                "SELECT huone_id FROM Huoneet WHERE huone_id = ? FOR UPDATE"
+            );
+            $lukitseHuone->execute([$huone]);
+
+            if ($lukitseHuone->fetchColumn() === false) {
+                $conn->rollBack();
+                vastaus("Huonetta ei löytynyt.", 404);
+            }
+
+            $tarkistus = $conn->prepare(
+                "SELECT 1
+                 FROM Varaukset
+                 WHERE huone_id = ?
+                   AND varauspaiva = ?
+                   AND varausaika < ?
+                   AND varausloppuaika > ?
+                 LIMIT 1"
+            );
+            $tarkistus->execute([$huone, $paiva, $loppu, $alku]);
+
+            if ($tarkistus->fetchColumn() !== false) {
+                $conn->rollBack();
+                vastaus("Valittu aika on jo varattu.", 409);
+            }
+
+            $sql = $conn->prepare(
+                "INSERT INTO Varaukset
+                (huone_id, varauspaiva, varausaika, varausloppuaika, kayttaja)
+                VALUES (?, ?, ?, ?, ?)"
+            );
+            $sql->execute([
+                $huone,
+                $paiva,
+                $alku,
+                $loppu,
+                $_SESSION["kayttaja_id"]
+            ]);
+
+            $conn->commit();
+        } catch (PDOException $e) {
+            if ($conn->inTransaction()) {
+                $conn->rollBack();
+            }
+            error_log("Varauksen lisääminen epäonnistui: " . $e->getMessage());
+            vastaus("Varauksen lisääminen epäonnistui tietokantavirheen vuoksi.", 500);
+        }
 
         vastaus("Varaus lisätty!");
     }
 
     elseif($tarkoitus == "Huoneen_ajat"){ //Kun ollaan tietyn huoneen sivulla, niin näytetään sen huoneen mahdolliset ajat
+    }
 
+    elseif ($tarkoitus === "kirjautuminen") {
+
+        $tunnus = trim($data["kayttajatunnus"] ?? "");
+        $salasana = $data["salasana"] ?? "";
+
+        $sql = $conn->prepare(
+            "SELECT kayttaja_id, kayttajatunnus, salasana
+             FROM Kayttajat
+             WHERE kayttajatunnus = ?"
+        );
+
+        $sql->execute([$tunnus]);
+        $kayttaja = $sql->fetch(PDO::FETCH_ASSOC);
+
+        if (!$kayttaja) {
+            vastaus("Virheellinen käyttäjätunnus tai salasana.", 401);
+        }
+
+        $oikein = password_verify($salasana, $kayttaja["salasana"]);
+
+        // Vanhojen testitunnusten käsittely
+        if (!$oikein && hash_equals($kayttaja["salasana"], $salasana)) {
+
+            $hash = password_hash($salasana, PASSWORD_DEFAULT);
+
+            $paivitys = $conn->prepare(
+                "UPDATE Kayttajat SET salasana = ? WHERE kayttaja_id = ?"
+            );
+
+            $paivitys->execute([$hash, $kayttaja["kayttaja_id"]]);
+
+            $oikein = true;
+        }
+
+        if (!$oikein) {
+            vastaus("Virheellinen käyttäjätunnus tai salasana.", 401);
+        }
+
+        session_regenerate_id(true);
+
+        $_SESSION["kayttaja_id"] = $kayttaja["kayttaja_id"];
+        $_SESSION["kayttajatunnus"] = $kayttaja["kayttajatunnus"];
+
+        vastaus("Kirjautuminen onnistui!");
+    }
+    
+}
 // ============================
 // GET
 // ============================
@@ -241,34 +306,56 @@ elseif ($metodi === "GET") {
 
     $tarkoitus = $_GET["tarkoitus"] ?? "";
 
+    //KIRJAUTUNEEN KÄYTTÄJÄTUNNUKSEN HAKU
+    if ($tarkoitus === "omaKayttaja") {
+        if (empty($_SESSION["kayttaja_id"])) {
+            vastaus("Et ole kirjautunut sisään.", 401);
+        }
+
+        vastaus("Kirjautunut käyttäjä.", 200, [
+            "kayttajatunnus" => $_SESSION["kayttajatunnus"]
+        ]);
+    }
+
 
     // KAIKKI HUONEET
 
     if ($tarkoitus === "huoneNakymat") {
 
         $sql = $conn->query(
-            "SELECT huone_id, tunnus, sijainti FROM Huoneet"
+            "SELECT huone_id, tunnus, sijainti, pintaAla FROM Huoneet"
         );
 
         echo json_encode(
             $sql->fetchAll(PDO::FETCH_ASSOC),
             JSON_UNESCAPED_UNICODE
         );
-
-        $sql = "SELECT Varaukset.varaus_id, Varaukset.varauspaiva, Varaukset.varausaika, Varaukset.varausloppuaika, Kayttajat.kayttajatunnus FROM Varaukset 
-        LEFT JOIN Kayttajat ON Varaukset.kayttaja = Kayttajat.kayttaja_id WHERE Varaukset.huone_id = :huone_id";
-        // Execute the SQL query
-        $stmt = $conn->prepare($sql);
-$stmt->execute(["huone_id" => $huone_id]);
-
-echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC), JSON_UNESCAPED_UNICODE);
         exit;
     }
 
 
+    //HUONEEN HAKU
+    elseif ($tarkoitus === "Huoneen_haku") {
+        $haku = "%" . ($_GET["haku"] ?? "") . "%";
+
+        $sql = $conn->prepare(
+            "SELECT huone_id, tunnus, sijainti
+             FROM Huoneet
+             WHERE tunnus LIKE ? OR sijainti LIKE ?"
+        );
+        $sql->execute([$haku, $haku]);
+
+        echo json_encode(
+            $sql->fetchAll(PDO::FETCH_ASSOC),
+            JSON_UNESCAPED_UNICODE
+        );
+
+        exit;
+    }
+
     // HUONEEN VARAUSAJAT
 
-    elseif ($tarkoitus === "Huoneen ajat") {
+    elseif ($tarkoitus === "Huoneen_ajat") {
 
         $huone = $_GET["huone_id"] ?? "";
 
@@ -294,9 +381,52 @@ echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC), JSON_UNESCAPED_UNICODE);
         exit;
     }
 
+    //TIETYN HUONEEN TIEDOT
+
+    elseif ($tarkoitus === "Huoneen_tiedot") {
+        $huone = $_GET["huone_id"] ?? "";
+
+        $sql = $conn->prepare(
+            "SELECT tunnus, sijainti FROM Huoneet WHERE huone_id = ?"
+        );
+
+        $sql->execute([$huone]);
+        $tiedot = $sql->fetch(PDO::FETCH_ASSOC);
+
+        if (!$tiedot) {
+            vastaus("Huonetta ei löytynyt.", 404);
+        }
+
+        echo json_encode($tiedot, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    elseif($tarkoitus === "kayttajan_ajat"){
+        if (empty($_SESSION["kayttaja_id"])) {
+            vastaus("Kirjaudu ensin sisään.", 401);
+        }
+
+        $kayttaja = $_SESSION["kayttaja_id"];
+
+        $sql = $conn->prepare(
+            "SELECT Varaukset.varaus_id, Varaukset.huone_id, Huoneet.tunnus, Huoneet.sijainti, Varaukset.varauspaiva, Varaukset.varausaika, Varaukset.varausloppuaika FROM Varaukset
+            LEFT JOIN Huoneet
+            ON Varaukset.huone_id = Huoneet.huone_id
+            WHERE Varaukset.kayttaja = ?"
+        );
+
+        $sql->execute([$kayttaja]);
+        $tiedot = $sql->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode($tiedot, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     else {
         vastaus("Tuntematon GET-toiminto.", 400);
     }
+
+    
 }
 
 
@@ -305,34 +435,151 @@ echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC), JSON_UNESCAPED_UNICODE);
 // ============================
 
 elseif ($metodi === "PUT") {
+$tarkoitus = $data["tarkoitus"] ?? "";
 
-    if (empty($_SESSION["kayttaja_id"])) {
-        vastaus("Kirjaudu ensin sisään.", 401);
+    if($tarkoitus === "editVaraus"){
+
+        if (empty($_SESSION["kayttaja_id"])) {
+            vastaus("Kirjaudu ensin sisään.", 401);
+        }
+
+        $id = $data["varaus_id"] ?? "";
+        $huone = $data["huone"] ?? "";
+        $paiva = $data["varausPaiva"] ?? "";
+        $alku = $data["varausAika"] ?? "";
+        $loppu = $data["varausLoppu"] ?? "";
+
+
+        $kelvollinenAika = '/^(?:0[6-9]|1[0-9]):(00|30):00$|^20:00:00$/';
+
+        if ( //virheen tarkistus inputeille
+            $id === "" ||
+            $huone === "" ||
+            $paiva === "" ||
+            !preg_match($kelvollinenAika, $alku) ||
+            !preg_match($kelvollinenAika, $loppu) ||
+            $alku >= $loppu
+        ) {
+            vastaus("Tarkista varauksen huone, päivä ja kellonajat.", 400);
+        }
+
+        try {
+            //varmistaa huoneen silti olemassaolon
+            $conn->beginTransaction();
+
+            $lukitseHuone = $conn->prepare(
+                "SELECT huone_id FROM Huoneet WHERE huone_id = ? FOR UPDATE"
+            );
+            $lukitseHuone->execute([$huone]);
+
+            if ($lukitseHuone->fetchColumn() === false) {
+                $conn->rollBack();
+                vastaus("Huonetta ei löytynyt.", 404);
+            }
+
+            //katsoo jos se on lähettäjän varaus
+            $omaVaraus = $conn->prepare(
+                "SELECT varaus_id
+                FROM Varaukset
+                WHERE varaus_id = ? AND kayttaja = ?
+                FOR UPDATE"
+            );
+            $omaVaraus->execute([$id, $_SESSION["kayttaja_id"]]);
+
+            if ($omaVaraus->fetchColumn() === false) {
+                $conn->rollBack();
+                vastaus("Varausta ei löytynyt tai se ei kuulu sinulle.", 404);
+            }
+
+            //tarkistaa ettei ole varauksia uuden ajan välillä
+            $tarkistus = $conn->prepare(
+                "SELECT 1
+                FROM Varaukset
+                WHERE huone_id = ?
+                AND varauspaiva = ?
+                AND varausaika < ?
+                AND varausloppuaika > ?
+                AND varaus_id <> ?
+                LIMIT 1"
+            );
+            $tarkistus->execute([$huone, $paiva, $loppu, $alku, $id]);
+
+            if ($tarkistus->fetchColumn() !== false) {
+                $conn->rollBack();
+                vastaus("Valittu aika on jo varattu.", 409);
+            }
+
+            //Jos ei ole aikoja välillä ja kaikki on hyvin, niin päivitetään huoneen varaus
+            $sql = $conn->prepare(
+                "UPDATE Varaukset
+                SET huone_id = ?, varauspaiva = ?,
+                    varausaika = ?, varausloppuaika = ?
+                WHERE varaus_id = ? AND kayttaja = ?"
+            );
+            $sql->execute([
+                $huone,
+                $paiva,
+                $alku,
+                $loppu,
+                $id,
+                $_SESSION["kayttaja_id"]
+            ]);
+
+            $conn->commit();
+        } catch (PDOException $e) {
+            if ($conn->inTransaction()) {
+                $conn->rollBack();
+            }
+            error_log("Varauksen päivittäminen epäonnistui: " . $e->getMessage());
+            vastaus("Varauksen päivittäminen epäonnistui tietokantavirheen vuoksi.", 500);
+        }
+
+        vastaus("Varaus päivitetty!");
     }
 
-    $id = $data["varaus_id"] ?? "";
-    $huone = $data["huone"] ?? "";
-    $paiva = $data["varausPaiva"] ?? "";
-    $alku = $data["varausAika"] ?? "";
-    $loppu = $data["varausLoppu"] ?? "";
+    if($tarkoitus === "editHuone"){
+        if ( //ainoastaa admin käyttäjä pääsee eteenpäin
+            empty($_SESSION["kayttaja_id"]) ||
+            ($_SESSION["kayttajatunnus"] ?? "") !== "Admin"
+        ) {
+            vastaus("Vain ylläpitäjä voi muokata huoneita.", 403);
+        }
+        
+        $huone_id = $data["huoneId"] ?? "";
+        $huonetunnus = trim($data["huonetunnus"] ?? "");
+        $huonesijainti = trim($data["huonesijainti"] ?? "");
+        $huonepintaAla = $data["huonepintaAla"] ?? null;
 
-    $sql = $conn->prepare(
-        "UPDATE Varaukset
-         SET huone_id = ?, varauspaiva = ?,
-             varausaika = ?, varausloppuaika = ?
-         WHERE varaus_id = ? AND kayttaja = ?"
-    );
+        //Inputtien tarkistus
+        if (
+            $huone_id === "" ||
+            $huonetunnus === "" ||
+            $huonesijainti === "" ||
+            !is_numeric($huonepintaAla) ||
+            (int)$huonepintaAla < 1 ||
+            (int)$huonepintaAla > 999
+        ) {
+            vastaus("Tarkista huoneen tiedot.", 400);
+        }
 
-    $sql->execute([
-        $huone,
-        $paiva,
-        $alku,
-        $loppu,
-        $id,
-        $_SESSION["kayttaja_id"]
-    ]);
+        //Huoneen päivitys
+        $sql = $conn->prepare(
+        "UPDATE Huoneet
+         SET tunnus = ?, sijainti = ?, pintaAla = ?
+         WHERE huone_id = ?"
+        );
+        $sql->execute([
+            $huonetunnus,
+            $huonesijainti,
+            (int)$huonepintaAla,
+            $huone_id
+        ]);
 
-    vastaus("Varaus päivitetty!");
+        vastaus("Huone päivitetty!");
+    }
+    
+
+
 }
 
 
@@ -341,25 +588,70 @@ elseif ($metodi === "PUT") {
 // ============================
 
 elseif ($metodi === "DELETE") {
-
+    //ainoastaan kirjautunut pystyy yrittää poistaa
     if (empty($_SESSION["kayttaja_id"])) {
         vastaus("Kirjaudu ensin sisään.", 401);
     }
+    //mitä poistetaan
+    $tarkoitus = $data["tarkoitus"] ?? "";
 
-    $id = $data["varaus_id"] ?? "";
+    if ($tarkoitus === "poistaVaraus") {
 
-    $sql = $conn->prepare(
-        "DELETE FROM Varaukset
-         WHERE varaus_id = ? AND kayttaja = ?"
-    );
+        //muuttuja
+        $id = $data["varaus_id"] ?? "";
 
-    $sql->execute([$id, $_SESSION["kayttaja_id"]]);
+        //virheen tarkastus
+        if ($id === "") {
+            vastaus("Varauksen tunnus puuttuu.", 400);
+        }
 
-    vastaus("Varaus poistettu!");
+        //poisto komento
+        $sql = $conn->prepare(
+            "DELETE FROM Varaukset
+            WHERE varaus_id = ? AND kayttaja = ?"
+        );
+        $sql->execute([$id, $_SESSION["kayttaja_id"]]);
+
+        //Jos ei ole varausta, missä id on haettu ja sinun käyttäjä on varauksen tekijä, niin virhe ilmoitetaan
+        if ($sql->rowCount() === 0) {
+            vastaus("Varausta ei löytynyt tai se ei kuulu sinulle.", 404);
+        }
+
+        //onnistuneesta poistosta ilmoitetaan
+        vastaus("Varaus poistettu!");
+    }
+
+    if($tarkoitus === "poistaHuone"){
+        if(empty($_SESSION["kayttaja_id"]) || ($_SESSION["kayttajatunnus"] ?? "") !== "Admin")
+        {
+            vastaus("Vain ylläpitäjä voi poistaa huoneita.", 403);
+        }
+
+        $huone_id = $data["huoneId"] ?? "";
+
+        if($huone_id === ""){
+            vastaus("Tarkista huoneen id.", 400);
+        }
+
+        //poisto komento
+        $sql = $conn->prepare(
+            "DELETE FROM Huoneet
+            WHERE huone_id = ?"
+        );
+        $sql->execute([$huone_id]);
+
+        if ($sql->rowCount() === 0) {
+            vastaus("Huonetta ei löytynyt tai se ei kuulu sinulle.", 404);
+        }
+
+        //onnistuneesta poistosta ilmoitetaan
+        vastaus("Huone poistettu!");
+
+    }
 }
-
 else {
     vastaus("Metodia ei tueta.", 405);
-}
 
+    
+}
 ?>
