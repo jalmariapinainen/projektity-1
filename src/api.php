@@ -152,15 +152,19 @@ if ($metodi === "POST") {
     // HUONEEN LISÄÄMINEN
 
     elseif ($tarkoitus === "huoneLisäys") {
-
+    if(empty($_SESSION["kayttaja_id"]) || ($_SESSION["kayttajatunnus"] ?? "") !== "Admin")
+        {
+            vastaus("Vain ylläpitäjä voi lisätä huoneita.", 403);
+        }
         $tunnus = $data["tunnus"] ?? "";
         $sijainti = $data["sijainti"] ?? "";
+        $pintaAla = $data["pintaAla"] ?? "";
 
         $sql = $conn->prepare(
-            "INSERT INTO Huoneet (tunnus, sijainti) VALUES (?, ?)"
+            "INSERT INTO Huoneet (tunnus, sijainti, pintaAla) VALUES (?, ?, ?)"
         );
 
-        $sql->execute([$tunnus, $sijainti]);
+        $sql->execute([$tunnus, $sijainti, $pintaAla]);
 
         vastaus("Huone lisätty!");
     }
@@ -532,6 +536,50 @@ $tarkoitus = $data["tarkoitus"] ?? "";
 
         vastaus("Varaus päivitetty!");
     }
+
+    if($tarkoitus === "editHuone"){
+        if ( //ainoastaa admin käyttäjä pääsee eteenpäin
+            empty($_SESSION["kayttaja_id"]) ||
+            ($_SESSION["kayttajatunnus"] ?? "") !== "Admin"
+        ) {
+            vastaus("Vain ylläpitäjä voi muokata huoneita.", 403);
+        }
+        
+        $huone_id = $data["huoneId"] ?? "";
+        $huonetunnus = trim($data["huonetunnus"] ?? "");
+        $huonesijainti = trim($data["huonesijainti"] ?? "");
+        $huonepintaAla = $data["huonepintaAla"] ?? null;
+
+        //Inputtien tarkistus
+        if (
+            $huone_id === "" ||
+            $huonetunnus === "" ||
+            $huonesijainti === "" ||
+            !is_numeric($huonepintaAla) ||
+            (int)$huonepintaAla < 1 ||
+            (int)$huonepintaAla > 999
+        ) {
+            vastaus("Tarkista huoneen tiedot.", 400);
+        }
+
+        //Huoneen päivitys
+        $sql = $conn->prepare(
+        "UPDATE Huoneet
+         SET tunnus = ?, sijainti = ?, pintaAla = ?
+         WHERE huone_id = ?"
+        );
+        $sql->execute([
+            $huonetunnus,
+            $huonesijainti,
+            (int)$huonepintaAla,
+            $huone_id
+        ]);
+
+        vastaus("Huone päivitetty!");
+    }
+    
+
+
 }
 
 
@@ -572,8 +620,38 @@ elseif ($metodi === "DELETE") {
         //onnistuneesta poistosta ilmoitetaan
         vastaus("Varaus poistettu!");
     }
+
+    if($tarkoitus === "poistaHuone"){
+        if(empty($_SESSION["kayttaja_id"]) || ($_SESSION["kayttajatunnus"] ?? "") !== "Admin")
+        {
+            vastaus("Vain ylläpitäjä voi poistaa huoneita.", 403);
+        }
+
+        $huone_id = $data["huoneId"] ?? "";
+
+        if($huone_id === ""){
+            vastaus("Tarkista huoneen id.", 400);
+        }
+
+        //poisto komento
+        $sql = $conn->prepare(
+            "DELETE FROM Huoneet
+            WHERE huone_id = ?"
+        );
+        $sql->execute([$huone_id]);
+
+        if ($sql->rowCount() === 0) {
+            vastaus("Huonetta ei löytynyt tai se ei kuulu sinulle.", 404);
+        }
+
+        //onnistuneesta poistosta ilmoitetaan
+        vastaus("Huone poistettu!");
+
+    }
 }
 else {
     vastaus("Metodia ei tueta.", 405);
+
+    
 }
 ?>
